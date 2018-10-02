@@ -14,15 +14,17 @@ require "uri"
 #response = http.request(Net::HTTP::Get.new(uri.request_uri))
 
 class LDPResource
-
-  attr_accessor :endpoint
+  attr_accessor :uri
+#  attr_accessor :containers
+#  attr_accessor :resources
   
-  def initialize (params = {}) # get a name from the "new" call, or set a default
-    @endpoint = params.fetch(:endpoint)
+  def initialize(params = {}) # get a name from the "new" call, or set a default
+    @myuri = params.fetch(:uri)
     
   end
 
-  def get (somedisease)
+
+  def get()
     #curl -iX GET -H "Accept: text/turtle"
     #-u dba:fairevaluator
     #"http://evaluations.fairdata.solutions:8890/DAV/home/LDP/evals/"
@@ -52,15 +54,15 @@ class LDPResource
     # => {"location"=>["http://www.google.com/"], "content-type"=>["text/html; charset=UTF-8"], ...}
   end
   
-  def head (somedisease)
+  def head()
 
   end
 
-  def put (somedisease)
+  def put()
 
   end
 
-  def post (somedisease)
+  def post()
     #curl -iX POST -H "Content-Type: text/turtle"
     #-u dav:fairevaluations
     #--data-binary @t.ttl
