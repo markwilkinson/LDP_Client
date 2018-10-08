@@ -6,22 +6,41 @@ require "uri"
 
 class LDPContainer
   
-  attr_accessor :uri
+  attr_accessor :myuri
   attr_accessor :containers
   attr_accessor :resources
   attr_accessor :metadata
+  attr_accessor :client
+  attr_accessor :init  # have I been initialized with content from teh server?
+  attr_accessor :http_response
   
   def initialize(params = {}) # get a name from the "new" call, or set a default
+    @needs_init = 0
     @containers = []
     @resources = []
     @metadata = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
 
     @myuri = params.fetch(:uri)
+    @client = params.fetch(:client)
+    @needs_init = params.fetch(:init, false) if 
+
+    @http_response = check_exists
+    if @http_response and !@init
+      parse_ldp(response.body)
+      self.init = 1
+    elsif !@http_response
+      return false
+    end
     
+    #puts response.header
+    return self
+  
   end
 
-  def add_container(uri)
-    cont = LDPContainer.new({:uri => uri})
+  def add_container(params)
+    uri = params[:uri]
+    client = params[:client] || self.client
+    cont = LDPContainer.new({:uri => uri, :client => client})
     @containers << cont
   end
   
@@ -30,7 +49,7 @@ class LDPContainer
     @resources << cont
   end
   
-  # pass a list of lists [ [s,p,o], [s,p.o],...]
+  # pass a list of lists [ [p,o], [p.o],...]
   def add_metadata(triples) 
     triples.each do |triple|
       s,p,o = triple
@@ -38,6 +57,80 @@ class LDPContainer
     end
   end
   
+  def check_exists
+    Net::HTTP.start(@myuri.host, @myuri.port,
+    :use_ssl => @myuri.scheme == 'https', 
+    :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
+  
+      request = Net::HTTP::Get.new @myuri.request_uri
+      request["User-Agent"] = "My Ruby Script"
+      request["Accept"] = "text/turtle"
+  
+      request.basic_auth self.client.username, self.client.password
+    
+      response = http.request request # Net::HTTPResponse object
+    
+      if ["200", "201", "202", "203", "204"].include?(response.code)
+        return response
+        #parse_ldp(response.body)
+      else
+        puts "bummer #{response}"
+        return false
+      end
+      return response
+    end
+  end
+  
+      
+      
+  def commit
+    
+    #updatequery = ""
+#    WITH GRAPH  <http://127.0.0.1:3000/dendro_graph>  
+#DELETE 
+#{ 
+#  :teste  dc:creator      ?o0 .
+#  :teste  dc:title        ?o1 .
+#  :teste  dc:description  ?o2 .
+#}
+#INSERT 
+#{ 
+#  :teste  dc:creator      "Creator%201" .
+#  :teste  dc:creator      "Creator%202" .
+#  :teste  dc:title        "Title%201" .
+#  :teste  dc:description  "Description%201" .
+#} 
+#WHERE 
+#{ 
+#  :teste  dc:creator      ?o0 .
+#  :teste  dc:title        ?o1 .
+#  :teste  dc:description  ?o2 .
+#} 
+    #code
+  end
+  
+  def _getHeaders
+    uri = @me
+    Net::HTTP.start(uri.host, uri.port,
+      :use_ssl => uri.scheme == 'https', 
+      :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
+    
+        request = Net::HTTP::Get.new uri.request_uri
+        request["User-Agent"] = "My Ruby Script"
+        request["Accept"] = "text/turtle"
+  
+        request.basic_auth user, pass
+      
+        response = http.request request # Net::HTTPResponse object
+      
+        if ["200", "201", "202", "203", "204"].include?(response.code)
+          puts response.body
+          parse_ldp(response.body, uri)
+        else
+          puts "bummer #{response}"
+        end
+      end
+  end
     
   def blah
     #curl -iX GET -H "Accept: text/turtle"
@@ -123,4 +216,53 @@ class LDPContainer
 
 	return true
   end
+  
+    
+  def parse_ldp(response)
+    repo = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
+    graph = RDF::Graph.new
+    graph.from_ttl(response)
+    #puts graph.count
+    repo.insert(*graph)
+    
+    query = <<END
+    PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+    PREFIX ldp:	<http://www.w3.org/ns/ldp#> 
+    SELECT ?cont
+    WHERE {
+           <#{@myuri}> ldp:contains ?cont .
+           ?cont a ldp:BasicContainer
+    }
+END
+    
+    sparql = SPARQL::Client.new(repo)    # Exactly the same as above...
+    result = sparql.query(query)  # Execute query
+    
+    result.each do |solution|
+      # puts "LDP contains the container:  #{solution[:cont]}"
+      self.add_container({:uri => solution[:cont], :init => 0})      
+    end
+
+    query = <<END2
+    PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+    PREFIX ldp:	<http://www.w3.org/ns/ldp#> 
+    SELECT ?cont
+    WHERE {
+           <#{@myuri}> ldp:contains ?cont .
+           ?cont a ldp:Resource
+    }
+END2
+
+    sparql = SPARQL::Client.new(repo)    # Exactly the same as above...
+    result = sparql.query(query)  # Execute query
+    
+    result.each do |solution|
+      # puts "LDP contains the container:  #{solution[:cont]}"
+      self.add_resource(solution[:cont])      
+    end
+
+
+  end
+  
 end
+

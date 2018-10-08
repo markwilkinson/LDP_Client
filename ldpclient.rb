@@ -59,26 +59,7 @@ class LDPClient
     
     @toplevel_container = LDPContainer.new({:uri => uri, :client => self})
     
-    Net::HTTP.start(uri.host, uri.port,
-      :use_ssl => uri.scheme == 'https', 
-      :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
-    
-      request = Net::HTTP::Get.new uri.request_uri
-      request["User-Agent"] = "My Ruby Script"
-      request["Accept"] = "text/turtle"
 
-      request.basic_auth @username, @password
-    
-      response = http.request request # Net::HTTPResponse object
-    
-      if ["200", "201", "202", "203", "204"].include?(response.code)
-        puts response.body
-        parse_ldp(response.body, uri)
-      else
-        puts "bummer #{response}"
-      end
-      
-    end
     
   end
 
@@ -105,52 +86,6 @@ class LDPClient
     #"http://evaluations.fairdata.solutions/DAV/home/LDP/evals"
 
   end
-  
-  def parse_ldp(response, uri)
-    repo = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
-    graph = RDF::Graph.new
-    graph.from_ttl(response)
-    #puts graph.count
-    repo.insert(*graph)
-    
-    query = <<END
-    PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-    PREFIX ldp:	<http://www.w3.org/ns/ldp#> 
-    SELECT ?cont
-    WHERE {
-           <#{uri}> ldp:contains ?cont .
-           ?cont a ldp:BasicContainer
-    }
-END
-    
-    sparql = SPARQL::Client.new(repo)    # Exactly the same as above...
-    result = sparql.query(query)  # Execute query
-    
-    result.each do |solution|
-      # puts "LDP contains the container:  #{solution[:cont]}"
-      @toplevel_container.add_container(solution[:cont])      
-    end
 
-    query = <<END2
-    PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-    PREFIX ldp:	<http://www.w3.org/ns/ldp#> 
-    SELECT ?cont
-    WHERE {
-           <#{uri}> ldp:contains ?cont .
-           ?cont a ldp:Resource
-    }
-END2
-
-    sparql = SPARQL::Client.new(repo)    # Exactly the same as above...
-    result = sparql.query(query)  # Execute query
-    
-    result.each do |solution|
-      # puts "LDP contains the container:  #{solution[:cont]}"
-      @toplevel_container.add_resource(solution[:cont])      
-    end
-
-
-  end
-  
   
 end
