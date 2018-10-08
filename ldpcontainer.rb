@@ -11,7 +11,7 @@ class LDPContainer
   attr_accessor :resources
   attr_accessor :metadata
   attr_accessor :client
-  attr_accessor :init  # have I been initialized with content from teh server?
+  attr_accessor :parent
   attr_accessor :http_response
   
   def initialize(params = {}) # get a name from the "new" call, or set a default
@@ -20,9 +20,11 @@ class LDPContainer
     @resources = []
     @metadata = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
 
-    @myuri = params.fetch(:uri)
-    @client = params.fetch(:client)
-    @needs_init = params.fetch(:init, false) if 
+    @myuri = params.fetch(:uri, false)
+    @client = params.fetch(:client, false)
+    @parent = params.fetch(:parent, false)
+
+    
 
     @http_response = check_exists
     if @http_response and !@init

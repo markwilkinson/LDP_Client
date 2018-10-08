@@ -64,7 +64,7 @@ class LDPResource
 
   def post()
     #curl -iX POST -H "Content-Type: text/turtle"
-    #-u dav:fairevaluations
+    #-u dav:fairevaluator 
     #--data-binary @t.ttl
     #-H "Slug: test8"
     #-H 'Link: <http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
