@@ -7,31 +7,28 @@ require "uri"
 class LDPContainer
   
   attr_accessor :myuri
-  attr_accessor :containers
-  attr_accessor :resources
+  #attr_accessor :containers  # don't allow external access - these might not be initialized!
+  #attr_accessor :resources # don't allow external access - these might not be initialized!
   attr_accessor :metadata
   attr_accessor :client
   attr_accessor :parent
+  attr_accessor :toplevel_container
   attr_accessor :http_response
   
   def initialize(params = {}) # get a name from the "new" call, or set a default
-    @needs_init = 0
+    
     @containers = []
     @resources = []
     @metadata = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
 
-    @myuri = params.fetch(:uri, false)
+    @myuri = params.fetch(:uri, false)  # this should be failure
     @client = params.fetch(:client, false)
     @parent = params.fetch(:parent, false)
-
+    @toplevel_container = params.fetch(:top, self)  # if there is no toplevel, then I must be!
+    @init = params.fetch(:init, true)
     
-
-    @http_response = check_exists
-    if @http_response and !@init
-      parse_ldp(response.body)
-      self.init = 1
-    elsif !@http_response
-      return false
+    if @init  # should I initialize by reading the content
+      init_folder
     end
     
     #puts response.header
@@ -39,10 +36,35 @@ class LDPContainer
   
   end
 
-  def add_container(params)
-    uri = params[:uri]
+  def init_folder
+    @http_response = check_exists
+    if @http_response
+      parse_ldp(@http_response.body)
+    elsif !@http_response
+      return false
+    end
+    @init = true
+  end
+  
+  def get_containers
+    init_folder unless @init  # have I been initialized?
+    return @containers  
+  end
+  def get_resources
+    init_folder unless @init  # have I been initialized?
+    return @resources      
+  end
+  
+  def add_container(params = {})
+    uri = params.fetch(:uri, false)
+    return false unless uri
     client = params[:client] || self.client
-    cont = LDPContainer.new({:uri => uri, :client => client})
+    cont = LDPContainer.new({ :uri => uri,
+                              :client => client,
+                              :parent => self,
+                              :top => @toplevel_container,
+                              :init => false
+                            })
     @containers << cont
   end
   
@@ -59,7 +81,7 @@ class LDPContainer
     end
   end
   
-  def check_exists
+  def check_exists   # replace this with the call that I use in my class that follows redirects
     Net::HTTP.start(@myuri.host, @myuri.port,
     :use_ssl => @myuri.scheme == 'https', 
     :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
@@ -76,7 +98,7 @@ class LDPContainer
         return response
         #parse_ldp(response.body)
       else
-        puts "bummer #{response}"
+        $stderr.puts "bummer #{response}"  # do something more useful, one day
         return false
       end
       return response
