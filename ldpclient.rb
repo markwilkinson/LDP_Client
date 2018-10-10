@@ -10,8 +10,8 @@ require 'rdf/raptor'
 require 'json/ld'
 
 require 'rdf/turtle'
-require_relative './ldpcontainer.rb'
-require_relative './ldpresource.rb'
+require './ldpcontainer.rb'
+require './ldpresource.rb'
 
 #uri = URI.parse("http://google.com/")
 
@@ -50,8 +50,11 @@ class LDPClient
   attr_accessor :toplevel_container
   attr_accessor :username
   attr_accessor :password
+  attr_accessor :agent
 
   def initialize(params = {}) # get a name from the "new" call, or set a default
+    @agent = "LDP_Client Ruby by Mark Wilkinson"
+
     @endpoint = params.fetch(:endpoint)
     @username = params.fetch(:username)
     @password = params.fetch(:password)
@@ -87,5 +90,42 @@ class LDPClient
 
   end
 
+
+  def triplify(s, p, o, repo)
+
+    if s.class == String
+            s.strip
+    end
+    if o.class == String
+            o.strip
+    end
+    if p.class == String
+            p.strip
+    end
+    
+    if s =~ /^\w+:(\/?\/?)[^\s]+/
+            s = RDF::URI.new(s)
+    else
+            exit
+    end
+    
+    if p.class == String and p =~ /^\w+:(\/?\/?)[^\s]+/
+            p = RDF::URI.new(s)
+    end
+
+    if o =~ /^\w+:(\/?\/?)[^\s]+/
+            o = RDF::URI.new(o)
+    elsif o =~ /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d/
+            o = RDF::Literal.new(o, :datatype => RDF::XSD.date)
+    else
+            o = RDF::Literal.new(o, :language => :en)
+    end
+    #puts "inserting #{s.to_s} #{p.to_s} #{o.to_s}"
+    triple = RDF::Statement(s, p, o) 
+    repo.insert(triple)
+
+    return true
+  end
   
+
 end
