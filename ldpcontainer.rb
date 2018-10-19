@@ -1,5 +1,8 @@
 require "net/http"
 require "uri"
+require "./http_utils.rb"
+require "./ldpresource.rb"
+
 
 
 
@@ -7,8 +10,6 @@ require "uri"
 class LDPContainer
   
   attr_accessor :uri
-  #attr_accessor :containers  # don't allow external access - these might not be initialized!
-  #attr_accessor :resources # don't allow external access - these might not be initialized!
   attr_accessor :metadata
   attr_accessor :client
   attr_accessor :parent
@@ -50,7 +51,7 @@ class LDPContainer
   def init_folder
     @containers = []
     @resources = []
-    @http_response = retrieve_container_metadata
+    @http_response = self.get
     if @http_response
       parse_ldp(@http_response.body)
     elsif !@http_response
@@ -70,7 +71,7 @@ class LDPContainer
     return @resources      
   end
   
-  def retrieve_container_metadata   # replace this with the call that I use in my class that follows redirects
+  def get   # replace this with the call that I use in my class that follows redirects
     Net::HTTP.start(@uri.host, @uri.port,
     :use_ssl => @uri.scheme == 'https', 
     :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
@@ -86,7 +87,7 @@ class LDPContainer
       if ["200", "201", "202", "203"].include?(response.code)
         return response
       else
-        $stderr.puts "FAILED to find this container #{response.inspect}"  # do something more useful, one day
+        @debug and $stderr.puts "FAILED to find this container #{response.inspect}"  # do something more useful, one day
         return false
       end
     end
@@ -115,7 +116,7 @@ class LDPContainer
 
       res = https.request(req)
       #res.header.each {|h| $stderr.puts h.inspect}
-      $stderr.puts "NOTE FROM CREATE OPERATION:  Response  #{res.code} #{res.message}: #{res.body}"
+      @debug and $stderr.puts "NOTE FROM CREATE OPERATION:  Response  #{res.code} #{res.message}: #{res.body}"
       newuri = res['location']
 
       newcont = self._add_container({:uri => newuri,
@@ -135,17 +136,14 @@ class LDPContainer
     slug = params.fetch(:slug, now)
 
     client = params.fetch(:client, self.client)
-    parent = params.fetch(:parent, self)
+    container = params.fetch(:container, self)
     top = params.fetch(:top, @toplevel_container)
-    res = params.fetch(:resource, false)
-    $stderr.puts "no LDPResource provided #{res.class}" and return false unless res.class.to_s =~ /LDPResource/
-    res.client = client
-    res.parent = parent
-    res.toplevel_container = top
-    res_new_uri = _create_empty_resource_get_uri(slug)  # creates an empty resource just to ensure we get the right URI
-    res.uri = URI.parse(res_new_uri)  # assign the URI to the resource
-    res.put
-
+    
+    res = LDPResource.new(:container => container,
+                          :slug => slug,
+                          :toplevel => top,
+                          :client => client)
+    
     self.init_folder  # refresh myself
     return res
 
@@ -160,49 +158,14 @@ class LDPContainer
       s,p,o = triple
       self.client.triplify(s,p,o,graph)
     end
-    self.put(graph)
+    self.update(graph)
   end
   
   
-      
-  
-  def commit
-    
-    #updatequery = ""
-#    WITH GRAPH  <http://127.0.0.1:3000/dendro_graph>  
-#DELETE 
-#{ 
-#  :teste  dc:creator      ?o0 .
-#  :teste  dc:title        ?o1 .
-#  :teste  dc:description  ?o2 .
-#}
-#INSERT 
-#{ 
-#  :teste  dc:creator      "Creator%201" .
-#  :teste  dc:creator      "Creator%202" .
-#  :teste  dc:title        "Title%201" .
-#  :teste  dc:description  "Description%201" .
-#} 
-#WHERE 
-#{ 
-#  :teste  dc:creator      ?o0 .
-#  :teste  dc:title        ?o1 .
-#  :teste  dc:description  ?o2 .
-#} 
-    #code
-  end
-  
-  def head()
-
-  end
-
-  def post()
-
-  end
 
   def delete()
     parent_container = self.parent
-    $stderr.puts "Cannot delete the toplevel container" and return false if self.uri == self.toplevel_container.uri
+    @debug and $stderr.puts "Cannot delete the toplevel container" and return false if self.uri == self.toplevel_container.uri
     Net::HTTP.start(@uri.host, @uri.port,
               :use_ssl => @uri.scheme == 'https', 
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
@@ -213,7 +176,7 @@ class LDPContainer
       req['Accept'] = 'text/turtle'
       req['User-Agent'] = self.client.agent
       res = https.request(req)
-      $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
+      @debug and $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
     end
     parent_container.init_folder  # refresh the content now that this is gone
     return parent_container  # return the parent container
@@ -221,7 +184,34 @@ class LDPContainer
 
 
 
-  def put(graph)  # TODO Validate this graph?
+# REMOVED BECAUSE ITS DANGEROUS
+  #def put(graph)  # TODO Validate this graph?
+  #  writer = RDF::Writer.for(:turtle)
+  #  body = writer.dump(graph)
+  #  
+  #  Net::HTTP.start(@uri.host, @uri.port,
+  #            :use_ssl => @uri.scheme == 'https', 
+  #            :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+  #
+  #    req = Net::HTTP::Put.new(uri.path)
+  #    req.basic_auth self.client.username, self.client.password
+  #    req['Content-Type'] = 'text/turtle'
+  #    req['Accept'] = 'text/turtle'
+  #    req['User-Agent'] = self.client.agent
+  #    req['Link'] = '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+  #    
+  #    req.body = body
+  #    res = https.request(req)
+  #    $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
+  #  end
+  #end
+  
+  def update(graph)  # TODO Validate this graph?
+    response = self.get
+    existinggraphobject = RDF::Graph.new
+    existinggraphobject.from_ttl(response.body)
+    existinggraphobject.each {|stmt| graph << stmt  }  # append
+    
     writer = RDF::Writer.for(:turtle)
     body = writer.dump(graph)
     
@@ -234,14 +224,12 @@ class LDPContainer
       req['Content-Type'] = 'text/turtle'
       req['Accept'] = 'text/turtle'
       req['User-Agent'] = self.client.agent
-      req['Link'] = '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
       
       req.body = body
       res = https.request(req)
-      $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
+      @debug and $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
     end
   end
-  
   
     
   def parse_ldp(response)
@@ -272,10 +260,11 @@ END
     query = <<END2
     PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
     PREFIX ldp:	<http://www.w3.org/ns/ldp#> 
-    SELECT ?cont
+    SELECT ?res
     WHERE {
-           <#{@uri}> ldp:contains ?cont .
-           ?cont a ldp:Resource
+           <#{@uri}> ldp:contains ?res .
+           ?res a ldp:Resource .
+           MINUS { ?res a ldp:BasicContainer . }
     }
 END2
 
@@ -283,7 +272,7 @@ END2
     result = sparql.query(query)  # Execute query
     
     result.each do |solution|
-      self._add_resource({:uri => solution[:cont]})      
+      self._add_resource({:uri => solution[:res]})      
     end
   end
 
@@ -293,12 +282,12 @@ END2
     uri = params.fetch(:uri, false)
     return false unless uri
     client = params.fetch(:client, self.client)
-    parent = params.fetch(:parent, self)
+    container = params.fetch(:container, self)
     top = params.fetch(:top, @toplevel_container)
     
-    res = LDPResource.new({ :uri => uri,
+    res = LDPResource.new({   :uri => uri,
                               :client => client,
-                              :parent => parent,
+                              :container => container,
                               :top => top,
                             })
     @resources << res
@@ -325,31 +314,6 @@ END2
     return cont
   end
   
-  def _create_empty_resource_get_uri(slug)
-
-    Net::HTTP.start(self.uri.host, self.uri.port,
-          :use_ssl => self.uri.scheme == 'https', 
-          :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-  
-      req = Net::HTTP::Post.new(self.uri.path)
-      req.basic_auth self.client.username, self.client.password
-      req['Content-Type'] = 'text/turtle'
-      req['Accept'] = 'text/turtle'
-      req['Slug'] = slug
-      req['User-Agent'] = self.client.agent
-      req['Link'] = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
-      
-      req.body = """@prefix ldp: <http://www.w3.org/ns/ldp#> . 
-                    <> a ldp:Resource ."""
-      
-  
-      response = https.request(req)
-      $stderr.puts "NOTE FROM CREATE OPERATION:  Response  #{response.code} #{response.message}: #{response.body}"
-      newuri = response['location']
-          
-      return newuri
-    end
-  end
   
 
 
