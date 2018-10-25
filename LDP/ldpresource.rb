@@ -11,15 +11,60 @@ require 'json/ld'
 require 'rdf/turtle'
 
 
+
+
+# == LDP::LDPResource
+#
+# Object representing an LDP Resource
+# 
+#
+# == Summary
+# 
+# Resources are chunks of data, in this case, in RDF.  (no other options right now, sorry!).
+#
 module LDP
 class LDPResource
+  
+  # Get the Resource uri
+  # @!attribute [r]
+  # @return [String] The uri
   attr_accessor :uri
+  
+  # Get the Resource's Container object
+  # @!attribute [r]
+  # @return [LDP::LDPContainer] The Container
   attr_accessor :container
+  
+  # Get the Resource's Client object
+  # @!attribute [r]
+  # @return [LDP::LDPClient] The Client
   attr_accessor :client
+  
+  # Get the Resource's top-level Container
+  # @!attribute [r]
+  # @return [LDP::LDPContainer] The top-level container
   attr_accessor :toplevel_container
   #attr_accessor :body   # not sure we should use these
   #attr_accessor :graph  # not sure we should use these
   
+
+  # Create a new instance of LDP::LDPResource
+
+  # @param uri [String] the URL of the LDP Container (required)
+  # @param client [LDP::LDPClient] the client for this Container (required)
+  # @param parent [LDP::LDPContainer] the parent Container of this container (required)
+  # @param top [LDP::LDPContainer] the toplevel container of this Client (required)
+  # @return [LDP::LDPRersource] an instance of LDP::LDPResource
+  #
+  # You should never create this yourself.  Let the Client create it for you
+  # You have been warned!
+  #
+  # The only useful functions you can call are:
+  # #toplevel_container - to get the 'root' container for the current Resource
+  # #parent - to get the parent container of this container
+  # #get - returns the HTTP Response object representing this Resource, with a Body in text/turtle
+  # #add_metadata - pass triples to annotate this RDF Resource object
+  # #delete - delete this Resource (returns parent container)
   def initialize(params = {})
     @debug = false
     @container = params.fetch(:container, nil)
@@ -42,6 +87,12 @@ class LDPResource
     return self
   end
 
+  
+  # Delete this Resource
+
+  # @return [LDP::LDPContainer]
+  # little error checking is done yet!  Failures will crash.
+  # The LDP::Container returned is the Parent container of this Rersource
   def delete
     parent_container = self.container
 
@@ -61,7 +112,11 @@ class LDPResource
     return parent_container  # return the parent container
   end
     
+  # Retrieve the Net::HTTP::Response from HTTP GET of this Resource
 
+  # @return [Net::HTTP::Response]
+  #
+  # The body of the Response object is in text/turtle format
   def get()
     Net::HTTP.start(self.uri.host, self.uri.port,
               :use_ssl => self.uri.scheme == 'https', 
@@ -82,7 +137,14 @@ class LDPResource
   end
   
   
-  
+  # Add a triples to the this RDF Resource
+
+  # @param [[subject, predicate, object],...] the triples to add
+  # @return self (?)
+  # little error checking is done yet!  Failures will crash.
+  # You can pass URLs or RDF::URI objects as subject and predicate.
+  # a "best guess" will be made about what us passed as object
+  # note that RDF::URI objects passed-in will be RECREATED (from to_s)
   def add_metadata(triples)
     graph = RDF::Graph.new
 
@@ -90,14 +152,11 @@ class LDPResource
       s,p,o = triple
       self.client.triplify(s,p,o,graph)
     end
-    self.update(graph)
+    self._update(graph)
   end
   
 
   
-  def head()
-  end
-
   #def put(graph)  # TODO Validate this graph?
   #  $stderr.puts "\n\nthis cannot be PUT because it has no uri\n\n\n #{self.inspect}\n\n" and return false unless (self.uri)
   #  
@@ -121,7 +180,7 @@ class LDPResource
   #end
 
 # used to be POST
-  def update(graph)  # TODO Validate this graph?
+  def _update(graph)  # TODO Validate this graph?
     @debug and $stderr.puts "\n\nthis cannot be POSTED because it has no uri\n\n\n #{self.inspect}\n\n" and return false unless (self.uri)
     response = self.get
     existinggraphobject = RDF::Graph.new

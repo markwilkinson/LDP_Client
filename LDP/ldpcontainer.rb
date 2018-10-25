@@ -5,7 +5,7 @@ require "uri"
 
 
 
-# == LDPContainer
+# == LDP::LDPContainer
 #
 # Object representing an LDP Container
 # 
@@ -19,13 +19,13 @@ module LDP
 
 class LDPContainer
   
-  # Get/Set the Container uri
-  # @!attribute [rw]
+  # Get the Container uri
+  # @!attribute [r]
   # @return [String] The uri
   attr_accessor :uri
   
-  # Get/Set the current client
-  # @!attribute [rw]
+  # Get the current client
+  # @!attribute [r]
   # @return [LDP::LDPClient] this container's client object
   attr_accessor :client
   

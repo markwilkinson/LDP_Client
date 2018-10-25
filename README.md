@@ -4,7 +4,7 @@ A simple Linked Data Platform (LDP) Client in Ruby
 
 # DISCLAIMER
 
-THIS IS NOT USEFUL FOR ANY PURPOSE UNTIL STATED OTHERWISE
+While you are free to try this, and see if it is suitable for your needs in a testing environment,
 
 THIS SHOULD NOT BE USED FOR PRODUCTION SERVICES.  I MAKE NO GUARANTEES
 THAT IT IS USEFUL FOR ANY PURPOSE AT ALL.  YOU MAY EXPERIENCE DATA CORRUPTION
