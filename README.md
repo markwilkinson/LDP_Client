@@ -28,7 +28,7 @@ the current RDF of that object, injecting new triples, then PUTting the object b
 ## Example of Usage
 
     
-    require './ldpclient.rb'
+    require './LDP/ldpclient.rb'
     
     
     # create the vocabularies I will use
@@ -38,7 +38,7 @@ the current RDF of that object, injecting new triples, then PUTting the object b
     
     
     
-    cli = LDPClient.new({
+    cli = LDP::LDPClient.new({
             :endpoint => "http://example.org/LDP/toplevelContainer/",
             :username => "username",
             :password => "password"})

@@ -8,10 +8,10 @@ require 'rdf/repository'
 require 'securerandom'
 require 'rdf/raptor'
 require 'json/ld'
-
 require 'rdf/turtle'
 
 
+module LDP
 class LDPResource
   attr_accessor :uri
   attr_accessor :container
@@ -182,4 +182,5 @@ class LDPResource
   end
 
   
+end
 end

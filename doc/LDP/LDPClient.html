@@ -4,31 +4,31 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>
-  Class: LDPClient
+  Class: LDP::LDPClient
   
     &mdash; Documentation by YARD 0.8.7.6
   
 </title>
 
-  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
 
-  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
 
 <script type="text/javascript" charset="utf-8">
-  pathId = "LDPClient";
-  relpath = '';
+  pathId = "LDP::LDPClient";
+  relpath = '../';
 </script>
 
 
-  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
 
-  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
 
 
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="class_list.html"></iframe>
+      <iframe id="nav" src="../class_list.html"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -36,9 +36,9 @@
       <div id="header">
         <div id="menu">
   
-    <a href="_index.html">Index (L)</a> &raquo;
-    
-    
+    <a href="../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../LDP.html" title="LDP (module)">LDP</a></span></span>
+     &raquo; 
     <span class="title">LDPClient</span>
   
 </div>
@@ -46,7 +46,7 @@
         <div id="search">
   
     <a class="full_list_link" id="class_list_link"
-        href="class_list.html">
+        href="../class_list.html">
 
         <svg width="24" height="24">
           <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
@@ -59,9 +59,9 @@
         <div class="clear"></div>
       </div>
 
-      <iframe id="search_frame" src="class_list.html"></iframe>
+      <iframe id="search_frame" src="../class_list.html"></iframe>
 
-      <div id="content"><h1>Class: LDPClient
+      <div id="content"><h1>Class: LDP::LDPClient
   
   
   
@@ -76,7 +76,7 @@
         <ul class="fullTree">
           <li>Object</li>
           
-            <li class="next">LDPClient</li>
+            <li class="next">LDP::LDPClient</li>
           
         </ul>
         <a href="#" class="inheritanceTree">show all</a>
@@ -96,7 +96,7 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>ldpclient.rb</dd>
+    <dd>LDP/ldpclient.rb</dd>
   </dl>
   
 </div>
@@ -352,7 +352,7 @@ represents the “root” of the LDP Container structure.</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(params = {})  &#x21d2; <tt><span class='object_link'><a href="" title="LDPClient (class)">LDPClient</a></span></tt> 
+    #<strong>initialize</strong>(params = {})  &#x21d2; <tt><span class='object_link'><a href="" title="LDP::LDPClient (class)">LDPClient</a></span></tt> 
   
 
   
@@ -401,7 +401,7 @@ don&#39;t use them :-)</p>
       
         &mdash;
         <div class='inline'>
-<p>the friendly string describing who I am to the server (required)</p>
+<p>the friendly string describing who I am to the server (optional)</p>
 </div>
       
     </li>
@@ -447,7 +447,6 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-104
 105
 106
 107
@@ -459,20 +458,21 @@ don&#39;t use them :-)</p>
 113
 114
 115
-116</pre>
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 104</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='comment'># get a name from the &quot;new&quot; call, or set a default
-</span>  <span class='ivar'>@agent</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LDP_Client Ruby by Mark Wilkinson</span><span class='tstring_end'>&quot;</span></span>
+</span>  <span class='ivar'>@agent</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:agent</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LDP_Client Ruby by Mark Wilkinson</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 
   <span class='ivar'>@endpoint</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:endpoint</span><span class='rparen'>)</span>
   <span class='ivar'>@username</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:username</span><span class='rparen'>)</span>
   <span class='ivar'>@password</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:password</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_uri'>uri</span> <span class='op'>=</span> <span class='const'>URI</span><span class='lparen'>(</span><span class='ivar'>@endpoint</span><span class='rparen'>)</span>
   
-  <span class='ivar'>@toplevel_container</span> <span class='op'>=</span> <span class='const'>LDPContainer</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='symbol'>:uri</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_uri'>uri</span><span class='comma'>,</span> <span class='symbol'>:client</span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='ivar'>@toplevel_container</span> <span class='op'>=</span> <span class='const'>LDP</span><span class='op'>::</span><span class='const'>LDPContainer</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='symbol'>:uri</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_uri'>uri</span><span class='comma'>,</span> <span class='symbol'>:client</span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   
 
   
@@ -533,12 +533,12 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-87
 88
-89</pre>
+89
+90</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 88</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_agent'>agent</span>
   <span class='ivar'>@agent</span>
@@ -594,12 +594,12 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-65
 66
-67</pre>
+67
+68</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 65</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 66</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_endpoint'>endpoint</span>
   <span class='ivar'>@endpoint</span>
@@ -655,12 +655,12 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-81
 82
-83</pre>
+83
+84</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 81</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 82</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_password'>password</span>
   <span class='ivar'>@password</span>
@@ -675,7 +675,7 @@ don&#39;t use them :-)</p>
       <div class="method_details ">
   <h3 class="signature " id="toplevel_container-instance_method">
   
-    #<strong>toplevel_container</strong>  &#x21d2; <tt>LDPContainer</tt>  <span class="extras">(readonly)</span>
+    #<strong>toplevel_container</strong>  &#x21d2; <tt><span class='object_link'><a href="LDPContainer.html" title="LDP::LDPContainer (class)">LDPContainer</a></span></tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -697,7 +697,7 @@ don&#39;t use them :-)</p>
     <li>
       
       
-        <span class='type'>(<tt>LDPContainer</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="LDPContainer.html" title="LDP::LDPContainer (class)">LDPContainer</a></span></tt>)</span>
       
       
       
@@ -716,12 +716,12 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-70
 71
-72</pre>
+72
+73</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 71</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_toplevel_container'>toplevel_container</span>
   <span class='ivar'>@toplevel_container</span>
@@ -777,12 +777,12 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-75
 76
-77</pre>
+77
+78</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 75</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 76</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_username'>username</span>
   <span class='ivar'>@username</span>
@@ -897,12 +897,12 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-170
-171
-172</pre>
+187
+188
+189</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 170</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 187</span>
 
 <span class='kw'>def</span> <span class='const'>LDPClient</span><span class='period'>.</span><span class='id identifier rubyid_triplify'>triplify</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='comma'>,</span> <span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_o'>o</span><span class='comma'>,</span> <span class='id identifier rubyid_repo'>repo</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_triplify'>triplify</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='comma'>,</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span><span class='id identifier rubyid_o'>o</span><span class='comma'>,</span><span class='id identifier rubyid_repo'>repo</span><span class='rparen'>)</span>
@@ -1016,7 +1016,6 @@ don&#39;t use them :-)</p>
       <pre class="lines">
 
 
-126
 127
 128
 129
@@ -1051,10 +1050,27 @@ don&#39;t use them :-)</p>
 158
 159
 160
-161</pre>
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'ldpclient.rb', line 126</span>
+      <pre class="code"><span class="info file"># File 'LDP/ldpclient.rb', line 127</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_triplify'>triplify</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='comma'>,</span> <span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_o'>o</span><span class='comma'>,</span> <span class='id identifier rubyid_repo'>repo</span><span class='rparen'>)</span>
 
@@ -1068,24 +1084,40 @@ don&#39;t use them :-)</p>
           <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
   <span class='kw'>end</span>
   
-  <span class='kw'>if</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\w+:(\/?\/?)[^\s]+</span><span class='regexp_end'>/</span></span>
-          <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
-  <span class='kw'>else</span>
-    <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subject </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'> must be a URI-compatible thingy</span><span class='tstring_end'>&quot;</span></span>
-    <span class='id identifier rubyid_exit'>exit</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    
+    <span class='kw'>if</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\w+:(\/?\/?)[^\s]+</span><span class='regexp_end'>/</span></span>
+            <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subject </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'> must be a URI-compatible thingy</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_exit'>exit</span>
+    <span class='kw'>end</span>
   <span class='kw'>end</span>
   
-  <span class='kw'>if</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='const'>String</span> <span class='kw'>and</span> <span class='id identifier rubyid_p'>p</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\w+:(\/?\/?)[^\s]+</span><span class='regexp_end'>/</span></span>
-          <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\w+:(\/?\/?)[^\s]+</span><span class='regexp_end'>/</span></span>
+            <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Predicate </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'> must be a URI-compatible thingy</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_exit'>exit</span>
+    <span class='kw'>end</span>
   <span class='kw'>end</span>
 
-  <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\w+:(\/?\/?)[^\s]+</span><span class='regexp_end'>/</span></span>
-          <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='rparen'>)</span>
-  <span class='kw'>elsif</span> <span class='id identifier rubyid_o'>o</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d</span><span class='regexp_end'>/</span></span>
-          <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Literal</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='comma'>,</span> <span class='symbol'>:datatype</span> <span class='op'>=&gt;</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>XSD</span><span class='period'>.</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
-  <span class='kw'>else</span>
-          <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Literal</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='comma'>,</span> <span class='symbol'>:language</span> <span class='op'>=&gt;</span> <span class='symbol'>:en</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\w+:(\/?\/?)[^\s]+</span><span class='regexp_end'>/</span></span>
+            <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_o'>o</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d</span><span class='regexp_end'>/</span></span>
+            <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Literal</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='symbol'>:datatype</span> <span class='op'>=&gt;</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>XSD</span><span class='period'>.</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_o'>o</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\d\.\d</span><span class='regexp_end'>/</span></span>
+            <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Literal</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='symbol'>:datatype</span> <span class='op'>=&gt;</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>XSD</span><span class='period'>.</span><span class='id identifier rubyid_float'>float</span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_o'>o</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[0-9]+$</span><span class='regexp_end'>/</span></span>
+            <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Literal</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='symbol'>:datatype</span> <span class='op'>=&gt;</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>XSD</span><span class='period'>.</span><span class='id identifier rubyid_int'>int</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+            <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Literal</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='symbol'>:language</span> <span class='op'>=&gt;</span> <span class='symbol'>:en</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
   <span class='kw'>end</span>
+
   <span class='comment'>#puts &quot;inserting #{s.to_s} #{p.to_s} #{o.to_s}&quot;
 </span>  <span class='id identifier rubyid_triple'>triple</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Statement</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='comma'>,</span> <span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_o'>o</span><span class='rparen'>)</span> 
   <span class='id identifier rubyid_repo'>repo</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='id identifier rubyid_triple'>triple</span><span class='rparen'>)</span>

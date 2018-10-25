@@ -1,30 +1,87 @@
 require "net/http"
 require "uri"
-require "./http_utils.rb"
-require "./ldpresource.rb"
 
 
 
 
+
+# == LDPContainer
+#
+# Object representing an LDP Container
+# 
+#
+# == Summary
+# 
+# Containers contain things (including other Containers or Resources).
+# Resources are chunks of data, and may be Linked Data or non Linked Data.
+#
+module LDP
 
 class LDPContainer
   
+  # Get/Set the Container uri
+  # @!attribute [rw]
+  # @return [String] The uri
   attr_accessor :uri
-  attr_accessor :metadata
+  
+  # Get/Set the current client
+  # @!attribute [rw]
+  # @return [LDP::LDPClient] this container's client object
   attr_accessor :client
+  
+  # Get the parent container
+  # @!attribute [r]
+  # @return [LDP::LDPContainer] This container's parent container
   attr_accessor :parent
+  
+  # Get the toplevel container object
+  # @!attribute [r]
+  # @return [LDP::LDPContainer] The endpoint
   attr_accessor :toplevel_container
+  
+  # Get the Net::HTTP::Reponse object from GET of this container (may not be set)
+  # @!attribute [r]
+  # @return [Net::HTTP::Reponse] represents GET of this container
   attr_accessor :http_response
+  
+  # Get the RDF::Graph representing this Container (may not be set)
+  # @!attribute [r]
+  # @return [RDF::Graph] The model
   attr_accessor :current_model
+
+  # Do Not Touch This
+  # @!attribute [r]
+  # @return [Boolean] should I read the entire folder or not
   attr_accessor :init
   
   
-  
+
+  # Create a new instance of LDP::LDPContainer
+
+  # @param uri [String] the URL of the LDP Container (required)
+  # @param client [LDP::LDPClient] the client for this Container (required)
+  # @param parent [LDP::LDPContainer] the parent Container of this container (required)
+  # @param top [LDP::LDPContainer] the toplevel container of this Client (required)
+  # @return [LDPContainer] an instance of LDPClient
+  #
+  # You should never create this yourself.  Let the Client create it for you
+  # You have been warned!
+  #
+  # The only useful functions you can call are:
+  # #get_containers - to get all the containers in this container
+  # #get_resources - to get all of the non-container resources in this container
+  # #toplevel_container - to get the 'root' container for the current Client
+  # #parent - to get the parent container of this container
+  # #get - returns the HTTP Response object representing this Container, with a Body in text/turtle
+  # #add_container - create a new container inside of this container
+  # #add_resource - create a new (RDF-only!) resource inside of this container
+  # #add_metadata - pass triples to annotate this container object
+  # #delete - delete this container (and everyting in it!)
+    
   def initialize(params = {}) # get a name from the "new" call, or set a default
     @current_model = false
     @containers = []
     @resources = []
-    @metadata = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
 
     @uri = params.fetch(:uri, false)  # this should be failure
     case uri
@@ -48,12 +105,16 @@ class LDPContainer
   end
 
 
+  # Refreshes the content of the Container object with the current state on the server
+
+  # You should never execute this command
+  # You have been warned!
   def init_folder
     @containers = []
     @resources = []
     @http_response = self.get
     if @http_response
-      parse_ldp(@http_response.body)
+      _parse_ldp(@http_response.body)
     elsif !@http_response
       return false
     end
@@ -61,16 +122,32 @@ class LDPContainer
   end
   
   
-  
+  # Retrieve the contained LDP::LDPContainers
+
+  # @return [Array[LDPContainer]]
+  #
+  # to explore the content of the container  
   def get_containers
     init_folder unless @init  # have I been initialized?
     return @containers  
   end
+
+  # Retrieve the contained LDP::LDPResource
+
+  # @return [Array[LDPResource]]
+  #
+  # to explore the content of the container  
   def get_resources
     init_folder unless @init  # have I been initialized?
     return @resources      
   end
   
+
+  # Retrieve the Net::HTTP::Response from HTTP GET of this container
+
+  # @return [Net::HTTP::Response]
+  #
+  # The body of the Response object is in text/turtle format
   def get   # replace this with the call that I use in my class that follows redirects
     Net::HTTP.start(@uri.host, @uri.port,
     :use_ssl => @uri.scheme == 'https', 
@@ -93,6 +170,11 @@ class LDPContainer
     end
   end
 
+  # Add a new Container inside of this Container
+
+  # @param slug [String] the indication of what you want the filename to be, if possible
+  # @return [LDP::LDPContainer] the LDPContainer object for the new container
+  # no error checking is done yet!  Failures will crash.
 
   def add_container(params = {})
     now = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
@@ -131,6 +213,13 @@ class LDPContainer
   end
   
   
+  # Add a new RDF Resource inside of this Container
+
+  # @param slug [String] the indication of what you want the filename to be, if possible
+  # @return [LDP::LDPResource] the LDPResource object for the new Resource
+  # no error checking is done yet!  Failures will crash.
+  # At this time, only RDF resources are allowed.  Sorry, that's all I needed!
+  
   def add_rdf_resource(params = {})
     now = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
     slug = params.fetch(:slug, now)
@@ -139,7 +228,7 @@ class LDPContainer
     container = params.fetch(:container, self)
     top = params.fetch(:top, @toplevel_container)
     
-    res = LDPResource.new(:container => container,
+    res = LDP::LDPResource.new(:container => container,
                           :slug => slug,
                           :toplevel => top,
                           :client => client)
@@ -149,7 +238,14 @@ class LDPContainer
 
   end
 
+  # Add a triples to the definition of this Container (annotate the Container)
 
+  # @param slug [[subject, predicate, object],...] the triples to add
+  # @return self (?)
+  # little error checking is done yet!  Failures will crash.
+  # You can pass URLs or RDF::URI objects as subject and predicate.
+  # a "best guess" will be made about what us passed as object
+  # note that RDF::URI objects passed-in will be RECREATED (from to_s)
   def add_metadata(triples)
     self.init_folder unless self.init
     graph = RDF::Graph.new
@@ -158,10 +254,15 @@ class LDPContainer
       s,p,o = triple
       self.client.triplify(s,p,o,graph)
     end
-    self.update(graph)
+    self._update(graph)
   end
   
   
+  # Delete this Container and all of its content
+
+  # @return [LDP::LDPContainer]
+  # little error checking is done yet!  Failures will crash.
+  # The LDP::Container returned is the Parent container of this Container
 
   def delete()
     parent_container = self.parent
@@ -206,7 +307,8 @@ class LDPContainer
   #  end
   #end
   
-  def update(graph)  # TODO Validate this graph?
+
+  def _update(graph)  # TODO Validate this graph?
     response = self.get
     existinggraphobject = RDF::Graph.new
     existinggraphobject.from_ttl(response.body)
@@ -232,7 +334,7 @@ class LDPContainer
   end
   
     
-  def parse_ldp(response)
+  def _parse_ldp(response)
     repo = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
     graph = RDF::Graph.new
     graph.from_ttl(response)
@@ -285,7 +387,7 @@ END2
     container = params.fetch(:container, self)
     top = params.fetch(:top, @toplevel_container)
     
-    res = LDPResource.new({   :uri => uri,
+    res = LDP::LDPResource.new({   :uri => uri,
                               :client => client,
                               :container => container,
                               :top => top,
@@ -303,7 +405,7 @@ END2
     top = params.fetch(:top, @toplevel_container)
     init = params.fetch(:init, false)
     
-    cont = LDPContainer.new({ :uri => uri,
+    cont = LDP::LDPContainer.new({ :uri => uri,
                               :client => client,
                               :parent => parent,
                               :top => top,
@@ -373,3 +475,4 @@ end
   #  # => {"location"=>["http://www.google.com/"], "content-type"=>["text/html; charset=UTF-8"], ...}
   #end
   
+end

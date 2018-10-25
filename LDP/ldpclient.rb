@@ -10,8 +10,9 @@ require 'rdf/raptor'
 require 'json/ld'
 
 require 'rdf/turtle'
-require './ldpcontainer.rb'
-require './ldpresource.rb'
+require_relative './http_utils.rb'
+require_relative './ldpcontainer.rb'
+require_relative './ldpresource.rb'
 
 
 # == LDPClient
@@ -54,8 +55,8 @@ ldp = RDF::Vocabulary.new("http://www.w3.org/ns/ldp#")
 foaf = RDF::Vocabulary.new("http://xmlns.com/foaf/0.1/")
 owl = RDF::Vocabulary.new("http://www.w3.org/2002/07/owl#")
 
-
-
+module LDP
+ 
 class LDPClient
 
 
@@ -87,22 +88,29 @@ class LDPClient
   attr_accessor :agent
 
 
-  # Create a new instance of Patient
+  # Create a new instance of LDP::LDPClient
 
   # @param endpoint [String] the URL of the LDP server (must be a Container!) (required)
-  # @param agent [String] the friendly string describing who I am to the server (required)
+  # @param agent [String] the friendly string describing who I am to the server (optional)
   # @param username [String] my username for basic auth (required)
   # @param password [String] my password for basic auth (required)
   # @return [LDPClient] an instance of LDPClient
+  #
+  # The only useful thing to do after creating the LDPClient is
+  # to call #toplevel_container on that object to retrieve the
+  # LDPContainer object that represents the "root" of the LDP
+  # Container structure.  All other Client functionalities are intended
+  # to be used only by the other objects, so... don't use them :-)
+  
   def initialize(params = {}) # get a name from the "new" call, or set a default
-    @agent = "LDP_Client Ruby by Mark Wilkinson"
+    @agent = params.fetch(:agent, "LDP_Client Ruby by Mark Wilkinson")
 
     @endpoint = params.fetch(:endpoint)
     @username = params.fetch(:username)
     @password = params.fetch(:password)
     uri = URI(@endpoint)
     
-    @toplevel_container = LDPContainer.new({:uri => uri, :client => self})
+    @toplevel_container = LDP::LDPContainer.new({:uri => uri, :client => self})
     
 
     
@@ -128,24 +136,40 @@ class LDPClient
             p.strip
     end
     
-    if s.to_s =~ /^\w+:(\/?\/?)[^\s]+/
-            s = RDF::URI.new(s)
-    else
-      $stderr.puts "Subject #{s.to_s} must be a URI-compatible thingy"
-      exit
+    unless s.respond_to?('uri')
+      
+      if s.to_s =~ /^\w+:(\/?\/?)[^\s]+/
+              s = RDF::URI.new(s)
+      else
+        $stderr.puts "Subject #{s.to_s} must be a URI-compatible thingy"
+        exit
+      end
     end
     
-    if p.class == String and p =~ /^\w+:(\/?\/?)[^\s]+/
-            p = RDF::URI.new(s)
+    unless p.respond_to?('uri')
+  
+      if p.to_s =~ /^\w+:(\/?\/?)[^\s]+/
+              p = RDF::URI.new(s)
+      else
+        $stderr.puts "Predicate #{p.to_s} must be a URI-compatible thingy"
+        exit
+      end
     end
 
-    if o =~ /^\w+:(\/?\/?)[^\s]+/
-            o = RDF::URI.new(o)
-    elsif o =~ /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d/
-            o = RDF::Literal.new(o, :datatype => RDF::XSD.date)
-    else
-            o = RDF::Literal.new(o, :language => :en)
+    unless o.respond_to?('uri')
+      if o.to_s =~ /^\w+:(\/?\/?)[^\s]+/
+              o = RDF::URI.new(o.to_s)
+      elsif o =~ /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d/
+              o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.date)
+      elsif o =~ /^\d\.\d/
+              o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.float)
+      elsif o =~ /^[0-9]+$/
+              o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.int)
+      else
+              o = RDF::Literal.new(o.to_s, :language => :en)
+      end
     end
+
     #puts "inserting #{s.to_s} #{p.to_s} #{o.to_s}"
     triple = RDF::Statement(s, p, o) 
     repo.insert(triple)
@@ -164,4 +188,5 @@ class LDPClient
     return triplify(s,p,o,repo)
   end
 
+end
 end
