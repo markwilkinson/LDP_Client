@@ -1,4 +1,4 @@
-# LDP_Client
+# LDP
 
 A simple Linked Data Platform (LDP) Client in Ruby
 
@@ -28,7 +28,7 @@ the current RDF of that object, injecting new triples, then PUTting the object b
 ## Example of Usage
 
     
-    require './LDP/ldpclient.rb'
+    require 'ldp'
     
     
     # create the vocabularies I will use

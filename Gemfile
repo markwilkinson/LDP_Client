@@ -1,8 +1,6 @@
-source 'https://rubygems.org'
-gem 'openssl'
-gem 'rdf'
-gem 'sparql-client'
-gem 'rdf-raptor'
-gem 'json-ld'
-gem 'rdf-turtle'
+source "https://rubygems.org"
 
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+# Specify your gem's dependencies in ldp.gemspec
+gemspec

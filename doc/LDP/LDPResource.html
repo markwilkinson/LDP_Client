@@ -96,7 +96,7 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>LDP/ldpresource.rb</dd>
+    <dd>lib/ldp/ldpresource.rb</dd>
   </dl>
   
 </div>
@@ -481,44 +481,44 @@ triples to annotate this RDF Resource object #delete - delete this Resource
       <pre class="lines">
 
 
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
 68
 69
 70
 71
 72
-73
-74
-75
-76
-77
-78
-79
-80
-81
-82
-83
-84
-85
-86
-87
-88</pre>
+73</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 68</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 53</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='ivar'>@debug</span> <span class='op'>=</span> <span class='kw'>false</span>
   <span class='ivar'>@container</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:container</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='ivar'>@container</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>LDPContainer</span><span class='rparen'>)</span>
-
+  
   <span class='ivar'>@client</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:client</span><span class='comma'>,</span> <span class='ivar'>@container</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
   <span class='ivar'>@toplevel_container</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:toplevel_container</span><span class='comma'>,</span> <span class='ivar'>@container</span><span class='period'>.</span><span class='id identifier rubyid_toplevel_container'>toplevel_container</span><span class='rparen'>)</span>
-
+  
   <span class='ivar'>@uri</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:uri</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='kw'>unless</span> <span class='ivar'>@uri</span>  <span class='comment'># if I don&#39;t already exist, create me
 </span>    <span class='id identifier rubyid_now'>now</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%Y-%m-%dT%H:%M:%S</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
     <span class='id identifier rubyid_slug'>slug</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:slug</span><span class='comma'>,</span> <span class='id identifier rubyid_now'>now</span><span class='rparen'>)</span>
-
+  
     <span class='id identifier rubyid_myuri'>myuri</span> <span class='op'>=</span> <span class='id identifier rubyid__create_empty_resource_get_uri'>_create_empty_resource_get_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_slug'>slug</span><span class='rparen'>)</span>  <span class='comment'># this fills @body and @graph, returns the &quot;location&quot; header
 </span>    <span class='ivar'>@uri</span> <span class='op'>=</span> <span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_myuri'>myuri</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_myuri'>myuri</span>
   <span class='kw'>end</span>
@@ -583,12 +583,12 @@ triples to annotate this RDF Resource object #delete - delete this Resource
       <pre class="lines">
 
 
-41
-42
-43</pre>
+26
+27
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 41</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 26</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
   <span class='ivar'>@client</span>
@@ -644,12 +644,12 @@ triples to annotate this RDF Resource object #delete - delete this Resource
       <pre class="lines">
 
 
-36
-37
-38</pre>
+21
+22
+23</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 36</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 21</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_container'>container</span>
   <span class='ivar'>@container</span>
@@ -705,12 +705,12 @@ triples to annotate this RDF Resource object #delete - delete this Resource
       <pre class="lines">
 
 
-46
-47
-48</pre>
+31
+32
+33</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 46</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 31</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_toplevel_container'>toplevel_container</span>
   <span class='ivar'>@toplevel_container</span>
@@ -766,12 +766,12 @@ triples to annotate this RDF Resource object #delete - delete this Resource
       <pre class="lines">
 
 
-31
-32
-33</pre>
+16
+17
+18</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 31</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 16</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_uri'>uri</span>
   <span class='ivar'>@uri</span>
@@ -803,6 +803,21 @@ triples to annotate this RDF Resource object #delete - delete this Resource
       <pre class="lines">
 
 
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
 210
 211
 212
@@ -819,28 +834,13 @@ triples to annotate this RDF Resource object #delete - delete this Resource
 223
 224
 225
-226
-227
-228
-229
-230
-231
-232
-233
-234
-235
-236
-237
-238
-239
-240
-241</pre>
+226</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 210</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 195</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid__create_empty_resource_get_uri'>_create_empty_resource_get_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_slug'>slug</span><span class='rparen'>)</span>
-
+  
   <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTP</span><span class='period'>.</span><span class='id identifier rubyid_start'>start</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_container'>container</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_container'>container</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
         <span class='symbol'>:use_ssl</span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_container'>container</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_scheme'>scheme</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> 
         <span class='symbol'>:verify_mode</span> <span class='op'>=&gt;</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>VERIFY_NONE</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_https'>https</span><span class='op'>|</span>
@@ -902,6 +902,21 @@ triples to annotate this RDF Resource object #delete - delete this Resource
       <pre class="lines">
 
 
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
 183
 184
 185
@@ -911,25 +926,10 @@ triples to annotate this RDF Resource object #delete - delete this Resource
 189
 190
 191
-192
-193
-194
-195
-196
-197
-198
-199
-200
-201
-202
-203
-204
-205
-206
-207</pre>
+192</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 183</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 168</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid__update'>_update</span><span class='lparen'>(</span><span class='id identifier rubyid_graph'>graph</span><span class='rparen'>)</span>  <span class='comment'># TODO Validate this graph?
 </span>  <span class='ivar'>@debug</span> <span class='kw'>and</span> <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n\nthis cannot be POSTED because it has no uri\n\n\n </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>and</span> <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='rparen'>)</span>
@@ -937,7 +937,7 @@ triples to annotate this RDF Resource object #delete - delete this Resource
   <span class='id identifier rubyid_existinggraphobject'>existinggraphobject</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Graph</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
   <span class='id identifier rubyid_existinggraphobject'>existinggraphobject</span><span class='period'>.</span><span class='id identifier rubyid_from_ttl'>from_ttl</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_existinggraphobject'>existinggraphobject</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_stmt'>stmt</span><span class='op'>|</span> <span class='id identifier rubyid_graph'>graph</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_stmt'>stmt</span>  <span class='rbrace'>}</span>  <span class='comment'># append
-</span>
+</span>  
   <span class='id identifier rubyid_writer'>writer</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Writer</span><span class='period'>.</span><span class='id identifier rubyid_for'>for</span><span class='lparen'>(</span><span class='symbol'>:turtle</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='id identifier rubyid_writer'>writer</span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_graph'>graph</span><span class='rparen'>)</span>
   
@@ -1010,22 +1010,22 @@ RECREATED (from to_s)</p>
       <pre class="lines">
 
 
-148
-149
-150
-151
-152
-153
-154
-155
-156</pre>
+133
+134
+135
+136
+137
+138
+139
+140
+141</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 148</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 133</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_add_metadata'>add_metadata</span><span class='lparen'>(</span><span class='id identifier rubyid_triples'>triples</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_graph'>graph</span> <span class='op'>=</span> <span class='const'>RDF</span><span class='op'>::</span><span class='const'>Graph</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
-
+  
   <span class='id identifier rubyid_triples'>triples</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_triple'>triple</span><span class='op'>|</span>
     <span class='id identifier rubyid_s'>s</span><span class='comma'>,</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span><span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_triple'>triple</span>
     <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_triplify'>triplify</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='comma'>,</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span><span class='id identifier rubyid_o'>o</span><span class='comma'>,</span><span class='id identifier rubyid_graph'>graph</span><span class='rparen'>)</span>
@@ -1077,31 +1077,31 @@ returned is the Parent container of this Rersource</p>
       <pre class="lines">
 
 
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
 96
 97
-98
-99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110
-111
-112
-113</pre>
+98</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 96</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete'>delete</span>
   <span class='id identifier rubyid_parent_container'>parent_container</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_container'>container</span>
-
+  
   <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTP</span><span class='period'>.</span><span class='id identifier rubyid_start'>start</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
             <span class='symbol'>:use_ssl</span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_scheme'>scheme</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> 
             <span class='symbol'>:verify_mode</span> <span class='op'>=&gt;</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>VERIFY_NONE</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_https'>https</span><span class='op'>|</span>
@@ -1161,27 +1161,27 @@ returned is the Parent container of this Rersource</p>
       <pre class="lines">
 
 
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
 120
 121
-122
-123
-124
-125
-126
-127
-128
-129
-130
-131
-132
-133
-134
-135
-136
-137</pre>
+122</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'LDP/ldpresource.rb', line 120</span>
+      <pre class="code"><span class="info file"># File 'lib/ldp/ldpresource.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='rparen'>)</span>
   <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTP</span><span class='period'>.</span><span class='id identifier rubyid_start'>start</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
