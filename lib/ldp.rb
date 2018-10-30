@@ -1,7 +1,8 @@
-require "ldp/version"
-require "ldp/ldpresource"
-require "ldp/ldpcontainer"
-require "ldp/http_utils"
+require "./ldp/version"
+require "./ldp/ldpclient"
+require "./ldp/ldpresource"
+require "./ldp/ldpcontainer"
+require "./ldp/http_utils"
 require "net/http"
 require "uri"
 require 'openssl'
@@ -16,10 +17,13 @@ require 'json/ld'
 
 
 module LDP
-	autoload :LDPClient, './ldp/ldpclient'
-	autoload :LDPResource, './ldp/ldpresource'
-	autoload :LDPContainer, './ldp/ldpcontainer'
-	autoload :HTTPUtils, './ldp/http_utils'
+	#autoload :LDPClient, 'ldp/ldpclient'
+	#autoload :LDPResource, 'ldp/ldpresource'
+	#autoload :LDPContainer, 'ldp/ldpcontainer'
+	#autoload :HTTPUtils, 'ldp/http_utils'
 
+   def LDP.hello
+	   puts "hello"
+   end
 end
 

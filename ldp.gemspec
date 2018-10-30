@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["markw@illuminae.com"]
 
   spec.summary       = %q{a primitive client for Linked Data Platform.}
-  spec.description   = %q{a primitive client for Linked Data Platform.}
+  spec.description   = %q{a primitive client for Linked Data Platform which has only been tested against the Virtuoso OS version implementation of LDP}
   spec.homepage      = "https://github.com/markwilkinson/LDP_Client"
   spec.license       = "MIT"
 
@@ -35,12 +35,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency 'openssl', "~> 2.1.2"
-  spec.add_development_dependency 'rdf', "~> 3.0.5"
-  spec.add_development_dependency 'sparql-client', "~> 3.0.0"
-  spec.add_development_dependency 'rdf-raptor', "~> 2.2.0"
-  spec.add_development_dependency 'json-ld', "~> 3.0.2"
-  spec.add_development_dependency 'rdf-turtle', "~> 3.0.3"
+  spec.add_development_dependency 'openssl', "~> 2.1", ">=2.1.2"
+  spec.add_development_dependency 'rdf', '~> 3.0', '>= 3.0.5'
+  spec.add_development_dependency 'sparql-client', '~> 3.0', '>= 3.0.0'
+  spec.add_development_dependency 'rdf-raptor', '~> 2.2', '>= 2.2.0'
+  spec.add_development_dependency 'json-ld', '~> 3.0', '>= 3.0.2'
+  spec.add_development_dependency 'rdf-turtle', '~> 3.0', '>= 3.0.3'
 
 
 end
