@@ -1,8 +1,8 @@
-require "./ldp_simple/version"
-require "./ldp_simple/ldpclient"
-require "./ldp_simple/ldpresource"
-require "./ldp_simple/ldpcontainer"
-require "./ldp_simple/http_utils"
+require "ldp_simple/version"
+require "ldp_simple/ldpclient"
+require "ldp_simple/ldpresource"
+require "ldp_simple/ldpcontainer"
+require "ldp_simple/http_utils"
 require "net/http"
 require "uri"
 require 'openssl'
