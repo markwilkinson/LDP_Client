@@ -1,10 +1,10 @@
 
 lib = File.expand_path("./lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "ldp/version"
+#require "./ldp_simple/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "ldp"
+  spec.name          = "ldp_simple"
   spec.version       = '0.0.1' 
   spec.authors       = ["Mark Wilkinson"]
   spec.email         = ["markw@illuminae.com"]

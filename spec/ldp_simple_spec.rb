@@ -1,4 +1,4 @@
-require_relative '../lib/ldp.rb'
+require_relative '../lib/ldp_simple.rb'
 RSpec.describe LDP do
   it "has a version number" do
     #expect(LDP::VERSION).not_to be nil

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ldp (0.0.1)
+    ldp_simple (0.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -57,15 +57,15 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.16)
-  json-ld (~> 3.0.2)
-  ldp!
-  openssl (~> 2.1.2)
+  json-ld (~> 3.0, >= 3.0.2)
+  ldp_simple!
+  openssl (~> 2.1, >= 2.1.2)
   rake (~> 10.0)
-  rdf (~> 3.0.5)
-  rdf-raptor (~> 2.2.0)
-  rdf-turtle (~> 3.0.3)
+  rdf (~> 3.0, >= 3.0.5)
+  rdf-raptor (~> 2.2, >= 2.2.0)
+  rdf-turtle (~> 3.0, >= 3.0.3)
   rspec (~> 3.0)
-  sparql-client (~> 3.0.0)
+  sparql-client (~> 3.0, >= 3.0.0)
 
 BUNDLED WITH
    1.16.2
