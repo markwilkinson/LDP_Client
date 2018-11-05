@@ -48,7 +48,7 @@ module LDP
     attr_accessor :init
     
     
-  
+    attr_accessor :debug
     # Create a new instance of LDP::LDPContainer
   
     # @param uri [String] the URL of the LDP Container (required)
@@ -86,6 +86,7 @@ module LDP
       @parent = params.fetch(:parent, self.parent)
       @toplevel_container = params.fetch(:top, self)  # if there is no toplevel, then I must be!
       @init = params.fetch(:init, true)
+      @debug = self.client.debug
       #now = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
       #@slug = params.fetch(:slug, now)
       
@@ -147,6 +148,7 @@ module LDP
       :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
     
         request = Net::HTTP::Get.new @uri.request_uri
+        @debug and $stderr.puts "trying to get #{@uri.request_uri} full uri #{@uri.to_s}(check URI encoding of this!)"
         request["User-Agent"] = self.client.agent
         request["Accept"] = "text/turtle"
     
@@ -171,6 +173,8 @@ module LDP
   
     def add_container(params = {})
       now = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
+      now = now.gsub(':', '--')
+
       @slug = params.fetch(:slug, now)
       
       Net::HTTP.start(@uri.host, @uri.port,
@@ -199,7 +203,10 @@ module LDP
                                      :parent => self,
                                      :top => self.toplevel_container,
                                      :init => true})
-    
+        unless newcont
+          abort "PROBLEM - cannot create container with id #{newuri}.  BAILING just to be safe"
+        end
+        
         return newcont
       end
       
@@ -224,7 +231,8 @@ module LDP
       res = LDP::LDPResource.new(:container => container,
                             :slug => slug,
                             :toplevel => top,
-                            :client => client)
+                            :client => client,
+                            :debug => @debug)
       
       self.init_folder  # refresh myself
       return res
@@ -279,6 +287,11 @@ module LDP
   
     def _update(graph)  # TODO Validate this graph?
       response = self.get
+      unless response
+        $stderr.puts "something went very wrong.  I could not retrieve #{self.uri} via HTTP GET\n\n\n#{self.inspect}"
+        return false
+      end
+      
       existinggraphobject = RDF::Graph.new
       existinggraphobject.from_ttl(response.body)
       existinggraphobject.each {|stmt| graph << stmt  }  # append

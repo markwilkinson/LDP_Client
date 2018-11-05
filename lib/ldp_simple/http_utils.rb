@@ -2,9 +2,9 @@ module LDP
       
       module HTTPUtils
       
-	def fetch(uri_str)  # we create a \"fetch\" routine that does some basic error-handling.  \n",
+	def self.fetch(uri_str)  # we create a \"fetch\" routine that does some basic error-handling.  \n",
 	 str = URI::encode(uri_str)
-	 str = resolve(str)
+	 str = self.resolve(str)
 	 address = URI(uri_str)  # create a \"URI\" object (Uniform Resource Identifier: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier)\n",
 	 response = Net::HTTP.get_response(address)  # use the Net::HTTP object \"get_response\" method\n",
 												   # to call that address\n,
@@ -25,7 +25,7 @@ module LDP
       
       
 	 # this returns the URI that results from all redirects, etc.
-	def resolve(uri_str, agent = 'curl/7.43.0', max_attempts = 10, timeout = 10)
+	def self.resolve(uri_str, agent = 'curl/7.43.0', max_attempts = 10, timeout = 10)
 	  attempts = 0
 	  max_attempts = 5
 	  cookie = nil

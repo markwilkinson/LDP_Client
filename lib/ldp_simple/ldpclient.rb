@@ -30,7 +30,7 @@ module LDP
     # @return [String] The user agent string
     attr_accessor :agent
   
-  
+    attr_accessor :debug
     # Create a new instance of LDP::LDPClient
   
     # @param endpoint [String] the URL of the LDP server (must be a Container!) (required)
@@ -46,11 +46,13 @@ module LDP
     # to be used only by the other objects, so... don't use them :-)
     
     def initialize(params = {}) # get a name from the "new" call, or set a default
-      @agent = params.fetch(:agent, "LDP_Client Ruby by Mark Wilkinson")
+      @agent = params.fetch(:agent, "LDP::LDPClient in Ruby by Mark Wilkinson")
   
       @endpoint = params.fetch(:endpoint)
       @username = params.fetch(:username)
       @password = params.fetch(:password)
+      @debug = params.fetch(:debug, false)
+
       uri = URI(@endpoint)
       
       @toplevel_container = LDP::LDPContainer.new({:uri => uri, :client => self})
@@ -72,11 +74,11 @@ module LDP
       if s.class == String
               s.strip
       end
-      if o.class == String
-              o.strip
-      end
       if p.class == String
               p.strip
+      end
+      if o.class == String
+              o.strip
       end
       
       unless s.respond_to?('uri')
@@ -92,7 +94,7 @@ module LDP
       unless p.respond_to?('uri')
     
         if p.to_s =~ /^\w+:(\/?\/?)[^\s]+/
-                p = RDF::URI.new(s)
+                p = RDF::URI.new(p)
         else
           $stderr.puts "Predicate #{p.to_s} must be a URI-compatible thingy"
           exit
@@ -113,7 +115,7 @@ module LDP
         end
       end
   
-      #puts "inserting #{s.to_s} #{p.to_s} #{o.to_s}"
+      puts "inserting #{s.to_s} #{p.to_s} #{o.to_s}"
       triple = RDF::Statement(s, p, o) 
       repo.insert(triple)
   

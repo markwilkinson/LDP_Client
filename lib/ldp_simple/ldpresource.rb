@@ -32,7 +32,7 @@ module LDP
     #attr_accessor :body   # not sure we should use these
     #attr_accessor :graph  # not sure we should use these
     
-  
+    attr_accessor :debug  
     # Create a new instance of LDP::LDPResource
   
     # @param uri [String] the URL of the LDP Container (required)
@@ -51,16 +51,19 @@ module LDP
     # #add_metadata - pass triples to annotate this RDF Resource object
     # #delete - delete this Resource (returns parent container)
     def initialize(params = {})
-      @debug = false
       @container = params.fetch(:container, nil)
       return false unless @container.is_a?(LDPContainer)
   
       @client = params.fetch(:client, @container.client)
+      @debug = self.client.debug
+
       @toplevel_container = params.fetch(:toplevel_container, @container.toplevel_container)
   
       @uri = params.fetch(:uri, false)
       unless @uri  # if I don't already exist, create me
         now = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
+        now = now.gsub(':', '--')
+
         slug = params.fetch(:slug, now)
   
         myuri = _create_empty_resource_get_uri(slug)  # this fills @body and @graph, returns the "location" header
