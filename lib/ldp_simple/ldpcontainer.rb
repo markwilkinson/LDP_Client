@@ -169,6 +169,8 @@ module LDP
   
     # @param slug [String] the indication of what you want the filename to be, if possible
     # @return [LDP::LDPContainer] the LDPContainer object for the new container
+    # will return the object representing an existing container if there is
+    # a container with the uri that would result from that slug...
     # no error checking is done yet!  Failures will crash.
   
     def add_container(params = {})
@@ -176,6 +178,11 @@ module LDP
       now = now.gsub(':', '--')
 
       @slug = params.fetch(:slug, now)
+      
+      containers = self.get_containers
+      containers.each do |c|
+        return c if c.uri.to_s.match(/\/#{@slug}\/?$/) # check if it already exists
+      end
       
       Net::HTTP.start(@uri.host, @uri.port,
                 :use_ssl => @uri.scheme == 'https', 
