@@ -87,7 +87,7 @@ module LDP
                 s = RDF::URI.new(s.to_s)
         else
           $stderr.puts "Subject #{s.to_s} must be a URI-compatible thingy"
-          exit
+          abort "Subject #{s.to_s} must be a URI-compatible thingy"
         end
       end
       
@@ -97,7 +97,7 @@ module LDP
                 p = RDF::URI.new(p.to_s)
         else
           $stderr.puts "Predicate #{p.to_s} must be a URI-compatible thingy"
-          exit
+          abort "Predicate #{p.to_s} must be a URI-compatible thingy"
         end
       end
   
@@ -115,7 +115,7 @@ module LDP
         end
       end
   
-      puts "inserting #{s.to_s} #{p.to_s} #{o.to_s}"
+      self.debug && $stderr.puts("inserting #{s.to_s} #{p.to_s} #{o.to_s}")
       triple = RDF::Statement(s, p, o) 
       repo.insert(triple)
   
