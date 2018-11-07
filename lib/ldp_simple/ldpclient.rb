@@ -72,19 +72,19 @@ module LDP
     def triplify(s, p, o, repo)
   
       if s.class == String
-              s.strip
+              s.strip!
       end
       if p.class == String
-              p.strip
+              p.strip!
       end
       if o.class == String
-              o.strip
+              o.strip!
       end
       
       unless s.respond_to?('uri')
         
-        if s.to_s =~ /^\w+:(\/?\/?)[^\s]+/
-                s = RDF::URI.new(s)
+        if s.to_s =~ /^\w+:\/?\/?[^\s]+/
+                s = RDF::URI.new(s.to_s.strip!)
         else
           $stderr.puts "Subject #{s.to_s} must be a URI-compatible thingy"
           exit
@@ -93,8 +93,8 @@ module LDP
       
       unless p.respond_to?('uri')
     
-        if p.to_s =~ /^\w+:(\/?\/?)[^\s]+/
-                p = RDF::URI.new(p)
+        if p.to_s =~ /^\w+:\/?\/?[^\s]+/
+                p = RDF::URI.new(p.to_s.strip!)
         else
           $stderr.puts "Predicate #{p.to_s} must be a URI-compatible thingy"
           exit
@@ -102,7 +102,7 @@ module LDP
       end
   
       unless o.respond_to?('uri')
-        if o.to_s =~ /^\w+:(\/?\/?)[^\s]+/
+        if o.to_s =~ /^\w+:\/?\/?[^\s]+/
                 o = RDF::URI.new(o.to_s)
         elsif o =~ /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d/
                 o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.date)
