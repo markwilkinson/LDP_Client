@@ -84,7 +84,7 @@ module LDP
       unless s.respond_to?('uri')
         
         if s.to_s =~ /^\w+:\/?\/?[^\s]+/
-                s = RDF::URI.new(s.to_s.strip!)
+                s = RDF::URI.new(s.to_s)
         else
           $stderr.puts "Subject #{s.to_s} must be a URI-compatible thingy"
           exit
@@ -94,7 +94,7 @@ module LDP
       unless p.respond_to?('uri')
     
         if p.to_s =~ /^\w+:\/?\/?[^\s]+/
-                p = RDF::URI.new(p.to_s.strip!)
+                p = RDF::URI.new(p.to_s)
         else
           $stderr.puts "Predicate #{p.to_s} must be a URI-compatible thingy"
           exit
