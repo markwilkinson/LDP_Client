@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'openssl', "~> 2.1", ">=2.1.2"
   spec.add_development_dependency 'rdf', '~> 3.0', '>= 3.0.5'
   spec.add_development_dependency 'sparql-client', '~> 3.0', '>= 3.0.0'
+  spec.add_development_dependency 'sparql', '~> 3.0', '>= 3.0.0'
   spec.add_development_dependency 'rdf-raptor', '~> 2.2', '>= 2.2.0'
   spec.add_development_dependency 'json-ld', '~> 3.0', '>= 3.0.2'
   spec.add_development_dependency 'rdf-turtle', '~> 3.0', '>= 3.0.3'
