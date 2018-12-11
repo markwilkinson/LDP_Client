@@ -104,17 +104,16 @@ module LDP
       unless o.respond_to?('uri')
         if o.to_s =~ /^\w+:\/?\/?[^\s]+/
                 o = RDF::URI.new(o.to_s)
-        elsif o =~ /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d/
+        elsif o.to_s =~ /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d/
                 o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.date)
-        elsif o =~ /^\d\.\d/
+        elsif o.to_s =~ /^\d\.\d/
                 o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.float)
-        elsif o =~ /^[0-9]+$/
+        elsif o.to_s =~ /^[0-9]+$/
                 o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.int)
         else
                 o = RDF::Literal.new(o.to_s, :language => :en)
         end
-      end
-  
+      end 
       self.debug && $stderr.puts("inserting #{s.to_s} #{p.to_s} #{o.to_s}")
       triple = RDF::Statement(s, p, o) 
       repo.insert(triple)
