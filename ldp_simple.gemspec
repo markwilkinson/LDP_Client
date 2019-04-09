@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "ldp_simple"
-  spec.version       = '0.0.2' 
+  spec.version       = '0.0.3' 
   spec.authors       = ["Mark Wilkinson"]
   spec.email         = ["markw@illuminae.com"]
 
@@ -42,6 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rdf-raptor', '~> 2.2', '>= 2.2.0'
   spec.add_development_dependency 'json-ld', '~> 3.0', '>= 3.0.2'
   spec.add_development_dependency 'rdf-turtle', '~> 3.0', '>= 3.0.3'
+  spec.add_development_dependency 'rest-client', '~> 2.0', '>= 2.0.2'
 
 
 end

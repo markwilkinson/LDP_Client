@@ -14,7 +14,7 @@ module LDP
     
     # Get the Container uri
     # @!attribute [r]
-    # @return [String] The uri
+    # @return [URI] The uri object
     attr_accessor :uri
     
     # Get the current client
@@ -77,7 +77,8 @@ module LDP
       @resources = []
   
       @uri = params.fetch(:uri, false)  # this should be failure
-      case uri
+      abort "cannot create a Container with no identifier... I'm dying!" unless @uri
+      case @uri
       when String
         @uri = URI.parse(@uri)
       end
@@ -143,25 +144,14 @@ module LDP
     #
     # The body of the Response object is in text/turtle format
     def get   # replace this with the call that I use in my class that follows redirects
-      Net::HTTP.start(@uri.host, @uri.port,
-      :use_ssl => @uri.scheme == 'https', 
-      :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
-    
-        request = Net::HTTP::Get.new @uri.request_uri
-        @debug and $stderr.puts "trying to get #{@uri.request_uri} full uri #{@uri.to_s}(check URI encoding of this!)"
-        request["User-Agent"] = self.client.agent
-        request["Accept"] = "text/turtle"
-    
-        request.basic_auth self.client.username, self.client.password
-      
-        response = http.request request # Net::HTTPResponse object
-      
-        if ["200", "201", "202", "203"].include?(response.code)
+      @debug and $stderr.puts "getting container"
+      @debug and $stderr.puts self.uri, {accept: "text/turtle"}, self.client.username, self.client.password
+      response = LDP::HTTPUtils.get(self.uri, {accept: "text/turtle"}, self.client.username, self.client.password)
+      if response
           return response
-        else
-          @debug and $stderr.puts "FAILED to find this container #{response.inspect}"  # do something more useful, one day
+      else
+          @debug and $stderr.puts "FAILED to find this container #{self.uri.to_s}"  # do something more useful, one day
           return false
-        end
       end
     end
   
@@ -184,37 +174,25 @@ module LDP
         return c if c.uri.to_s.match(/\/#{@slug}\/?$/) # check if it already exists
       end
       
-      Net::HTTP.start(@uri.host, @uri.port,
-                :use_ssl => @uri.scheme == 'https', 
-                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    
-        req = Net::HTTP::Post.new(uri.path)
-        req.basic_auth self.client.username, self.client.password
-        req['Content-Type'] = 'text/turtle'
-        req['Accept'] = 'text/turtle'
-        req['Slug'] = @slug
-        req['User-Agent'] = self.client.agent
-        req['Link'] = '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+      headers = {accept: 'text/turtle', content_type: 'text/turtle', "Slug" => @slug, "Link" => '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'}
         
-        req.body = """@prefix ldp: <http://www.w3.org/ns/ldp#> . 
+      payload = """@prefix ldp: <http://www.w3.org/ns/ldp#> . 
                       <> a ldp:Container, ldp:BasicContainer ."""
         
-  
-        res = https.request(req)
-        #res.header.each {|h| $stderr.puts h.inspect}
-        @debug and $stderr.puts "NOTE FROM CREATE OPERATION:  Response  #{res.code} #{res.message}: #{res.body}"
-        newuri = res['location']
-  
+      response = LDP::HTTPUtils::post(self.uri, headers, payload, self.client.username, self.client.password)
+      if response
+        newuri = response.headers[:location]  
         newcont = self._add_container({:uri => newuri,
                                      :client => self.client,
                                      :parent => self,
                                      :top => self.toplevel_container,
                                      :init => true})
         unless newcont
-          abort "PROBLEM - cannot create container with id #{newuri}.  BAILING just to be safe"
+          abort "PROBLEM - cannot add new container with id #{newuri}.  BAILING just to be safe"
         end
-        
         return newcont
+      else
+        abort "PROBLEM - cannot create container into #{self.uri}.  BAILING just to be safe"
       end
       
     end
@@ -275,20 +253,16 @@ module LDP
     def delete()
       parent_container = self.parent
       @debug and $stderr.puts "Cannot delete the toplevel container" and return false if self.uri == self.toplevel_container.uri
-      Net::HTTP.start(@uri.host, @uri.port,
-                :use_ssl => @uri.scheme == 'https', 
-                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    
-        req = Net::HTTP::Delete.new(uri.path)
-        req.basic_auth self.client.username, self.client.password
-        req['Content-Type'] = 'text/turtle'
-        req['Accept'] = 'text/turtle'
-        req['User-Agent'] = self.client.agent
-        res = https.request(req)
-        @debug and $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
+      
+      response = LDP::HTTPUtils::delete(self.uri, {accept: "text/turtle"}, self.client.username, self.client.password)
+      @debug and $stderr.puts "Response #{response.code}: #{response.body}"
+      if response
+        parent_container.init_folder  # refresh the content now that this is gone
+        return parent_container  # return the parent container
+      else
+        stderr.puts "Delete of #{self.uri} failed for unknown reasons.  Continuing, but beware!"
+        return false
       end
-      parent_container.init_folder  # refresh the content now that this is gone
-      return parent_container  # return the parent container
     end
     
   
@@ -306,20 +280,16 @@ module LDP
       writer = RDF::Writer.for(:turtle)
       body = writer.dump(graph)
       
-      Net::HTTP.start(@uri.host, @uri.port,
-                :use_ssl => @uri.scheme == 'https', 
-                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    
-        req = Net::HTTP::Put.new(uri.path)
-        req.basic_auth self.client.username, self.client.password
-        req['Content-Type'] = 'text/turtle'
-        req['Accept'] = 'text/turtle'
-        req['User-Agent'] = self.client.agent
-        
-        req.body = body
-        res = https.request(req)
-        @debug and $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
+      response = LDP::HTTPUtils::put(self.uri, {accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
+      @debug and $stderr.puts "Response #{response.code}: #{response.body}"
+      if response
+        self.init_folder
+        return self
+      else
+        stderr.puts "Update of #{self.uri} failed for unknown reasons.  Continuing, but beware!"
+        return false
       end
+    
     end
     
       
@@ -336,7 +306,7 @@ module LDP
       PREFIX ldp:	<http://www.w3.org/ns/ldp#> 
       SELECT ?cont
       WHERE {
-             <#{@uri}> ldp:contains ?cont .
+             <#{@uri.to_s}> ldp:contains ?cont .
              ?cont a ldp:BasicContainer
       }
 END
@@ -353,7 +323,7 @@ END
       PREFIX ldp:	<http://www.w3.org/ns/ldp#> 
       SELECT ?res
       WHERE {
-             <#{@uri}> ldp:contains ?res .
+             <#{@uri.to_s}> ldp:contains ?res .
              ?res a ldp:Resource .
              MINUS { ?res a ldp:BasicContainer . }
       }

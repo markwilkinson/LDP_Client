@@ -60,6 +60,7 @@ module LDP
       @toplevel_container = params.fetch(:toplevel_container, @container.toplevel_container)
   
       @uri = params.fetch(:uri, false)
+
       unless @uri  # if I don't already exist, create me
         now = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
         now = now.gsub(':', '--')
@@ -68,6 +69,7 @@ module LDP
   
         myuri = _create_empty_resource_get_uri(slug)  # this fills @body and @graph, returns the "location" header
         @uri = URI.parse(myuri) if myuri
+        self.uri = @uri
       end
       
       return false unless self.uri
@@ -83,45 +85,21 @@ module LDP
     # The LDP::Container returned is the Parent container of this Rersource
     def delete
       parent_container = self.container
-  
-      Net::HTTP.start(self.uri.host, self.uri.port,
-                :use_ssl => self.uri.scheme == 'https', 
-                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    
-        req = Net::HTTP::Delete.new(self.uri.path)
-        req.basic_auth self.client.username, self.client.password
-        req['Content-Type'] = 'text/turtle'
-        req['Accept'] = 'text/turtle'
-        req['User-Agent'] = self.client.agent
-        res = https.request(req)
-        @debug and $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
+      response = LDP::HTTPUtils::delete(self.uri, {accept: "*/*"}, self.client.username, self.client.password)
+      @debug and $stderr.puts "Response #{response.code}: #{response.body}"
+      if response
+        parent_container.init_folder  # refresh the content now that this is gone
+        return parent_container  # return the parent container
+      else
+        stderr.puts "Delete of #{self.uri} failed for unknown reasons.  Continuing, but beware!"
+        return false
       end
-      parent_container.init_folder  # refresh the content now that this is gone
-      return parent_container  # return the parent container
     end
       
-    # Retrieve the Net::HTTP::Response from HTTP GET of this Resource
-  
-    # @return [Net::HTTP::Response]
-    #
-    # The body of the Response object is in text/turtle format
-    def get()
-      Net::HTTP.start(self.uri.host, self.uri.port,
-                :use_ssl => self.uri.scheme == 'https', 
-                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    
-        req = Net::HTTP::Get.new(self.uri.path)
-        req.basic_auth self.client.username, self.client.password
-        req['Content-Type'] = 'text/turtle'
-        req['Accept'] = 'text/turtle'
-        req['User-Agent'] = self.client.agent
-        res = https.request(req)
-        @debug and $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
-        # TODO  THiS IS BAD!  It should first convert the message body into
-        # a specific format ...right now, that format is undefined, but the body is always written
-        # as turtle, so it will always be returned as turtle, I guess.  for the moment
-        return res
-      end
+
+    def get()      
+      response = LDP::HTTPUtils::get(self.uri, {accept: "text/turtle"}, self.client.username, self.client.password)             
+      return response
     end
     
     
@@ -143,89 +121,55 @@ module LDP
       self._update(graph)
     end
     
-  
-    
-    #def put(graph)  # TODO Validate this graph?
-    #  $stderr.puts "\n\nthis cannot be PUT because it has no uri\n\n\n #{self.inspect}\n\n" and return false unless (self.uri)
-    #  
-    #  writer = RDF::Writer.for(:turtle)
-    #  body = writer.dump(graph)
-    #  
-    #  Net::HTTP.start(self.uri.host, self.uri.port,
-    #            :use_ssl => self.uri.scheme == 'https', 
-    #            :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    #
-    #    req = Net::HTTP::Put.new(self.uri.path)
-    #    req.basic_auth self.client.username, self.client.password
-    #    req['Content-Type'] = 'text/turtle'
-    #    req['Accept'] = 'text/turtle'
-    #    req['User-Agent'] = self.client.agent
-    #    
-    #    req.body = body
-    #    res = https.request(req)
-    #    $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
-    #  end
-    #end
-  
-  # used to be POST
+
     def _update(graph)  # TODO Validate this graph?
-      @debug and $stderr.puts "\n\nthis cannot be POSTED because it has no uri\n\n\n #{self.inspect}\n\n" and return false unless (self.uri)
       response = self.get
+      unless response
+        $stderr.puts "something went very wrong.  I could not retrieve #{self.uri} via HTTP GET\n\n\n#{self.inspect}"
+        return false
+      end
+      
       existinggraphobject = RDF::Graph.new
       existinggraphobject.from_ttl(response.body)
       existinggraphobject.each {|stmt| graph << stmt  }  # append
-  
+      
       writer = RDF::Writer.for(:turtle)
       body = writer.dump(graph)
       
-      Net::HTTP.start(self.uri.host, self.uri.port,
-                :use_ssl => self.uri.scheme == 'https', 
-                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    
-        req = Net::HTTP::Post.new(self.uri.path)
-        req.basic_auth self.client.username, self.client.password
-        req['Content-Type'] = 'text/turtle'
-        req['Accept'] = 'text/turtle'
-        req['User-Agent'] = self.client.agent
-        
-        req.body = body
-        res = https.request(req)
-        @debug and $stderr.puts "Response #{res.code} #{res.message}: #{res.body}"
+      response = LDP::HTTPUtils::put(@uri, {accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
+      @debug and $stderr.puts "Response #{response.code} : #{response.body}"
+      if response
+        return self
+      else
+        stderr.puts "Update of #{self.uri} failed for unknown reasons.  Continuing, but beware!"
+        return false
       end
+    
     end
   
   
     def _create_empty_resource_get_uri(slug)
   
-      Net::HTTP.start(self.container.uri.host, self.container.uri.port,
-            :use_ssl => self.container.uri.scheme == 'https', 
-            :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    
-        req = Net::HTTP::Post.new(self.container.uri.path)
-        req.basic_auth self.client.username, self.client.password
-        req['Content-Type'] = 'text/turtle'
-        req['Accept'] = 'text/turtle'
-        req['Slug'] = slug
-        req['User-Agent'] = self.client.agent
-        req['Link'] = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
-        
-        req.body = """<> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/ldp#Resource> ."""
-        
-    
-        response = https.request(req)
-        @debug and $stderr.puts "NOTE FROM CREATE OPERATION:  Response  #{response.code} #{response.message}: #{response.body}"
-        newuri = response['location']
-        
-        #@graph = RDF::Graph.new
-        #
-        #RDF::Reader.for(:ntriples).new(req.body) do |reader|
-        #  reader.each_statement do |statement|
-        #    @graph << statement
-        #  end
-        #end
-    
-        return newuri
+      parent_container = self.container
+      resources = parent_container.get_resources
+      resources.each do |r|
+        return r if r.uri.to_s.match(/\/#{@slug}\/?$/) # check if it already exists, return it if it does
       end
+
+      headers = {accept: 'text/turtle', content_type: 'text/turtle', "Slug" => slug, "Link" => '<http://www.w3.org/ns/ldp#Resource>; rel="type"'}
+        
+      payload = """<> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/ldp#Resource> ."""
+      @debug and $stderr.puts   parent_container.uri, headers, payload, self.client.username, self.client.password
+      response = LDP::HTTPUtils::post(parent_container.uri, headers, payload, self.client.username, self.client.password)
+      if response
+        newuri = response.headers[:location]  
+        unless newuri
+          abort "PROBLEM - cannot get location of new resource.  This resource may or may not have been created! BAILING just to be safe"
+        end
+        return newuri
+      else
+        abort "PROBLEM - cannot get response when creating resource in #{self.container.uri}.  BAILING just to be safe"
+      end    
     end
   
     
