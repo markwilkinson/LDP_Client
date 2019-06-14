@@ -243,6 +243,56 @@ module LDP
       self._update(graph)
     end
     
+
+    ## Remove triples from the Container annotations (annotate the Container)
+    #
+    ## @param slug [[subject, predicate, object],...] the triples to remove
+    ## @return self (?)
+    ## little error checking is done yet!  Failures will crash.
+    ## You can pass URLs or RDF::URI objects as subject and predicate.
+    ## a "best guess" will be made about what us passed as object
+    ## note that RDF::URI objects passed-in will be RECREATED (from to_s)
+    #def delete_metadata(triples)
+    #  self.init_folder unless self.init
+    #  graph = RDF::Graph.new
+    #
+    #  triples.each do |triple|
+    #    s,p,o = triple
+    #    self.client.triplify(s,p,o,graph)
+    #  end
+    #  self._update(graph)
+    #end
+    #
+    #
+    #def _delete_update(graph)  # TODO Validate this graph?
+    #  response = self.get
+    #  unless response
+    #    $stderr.puts "something went very wrong.  I could not retrieve #{self.uri} via HTTP GET\n\n\n#{self.inspect}"
+    #    return false
+    #  end
+    #  
+    #  existinggraphobject = RDF::Graph.new
+    #  existinggraphobject.from_ttl(response.body)
+    #  existinggraphobject.each {|stmt| graph << stmt  }  # append
+    #  
+    #  writer = RDF::Writer.for(:turtle)
+    #  body = writer.dump(graph)
+    #  
+    #  response = LDP::HTTPUtils::put(self.uri, {accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
+    #  @debug and $stderr.puts "Response #{response.code}: #{response.body}"
+    #  if response
+    #    self.init_folder
+    #    return self
+    #  else
+    #    stderr.puts "Update of #{self.uri} failed for unknown reasons.  Continuing, but beware!"
+    #    return false
+    #  end
+    #
+    #end
+
+    
+    
+    
     
     # Delete this Container and all of its content
   
@@ -274,7 +324,8 @@ module LDP
       end
       
       existinggraphobject = RDF::Graph.new
-      existinggraphobject.from_ttl(response.body)
+      patchedttl = LDP::HTTPUtils::patchttl(response.body)
+      existinggraphobject.from_ttl(patchedttl)
       existinggraphobject.each {|stmt| graph << stmt  }  # append
       
       writer = RDF::Writer.for(:turtle)
@@ -296,7 +347,8 @@ module LDP
     def _parse_ldp(response)
       repo = RDF::Repository.new   # a repository can be used as a SPARQL endpoint for SPARQL::Client
       graph = RDF::Graph.new
-      graph.from_ttl(response)
+      patchedttl = LDP::HTTPUtils::patchttl(response)
+      graph.from_ttl(patchedttl)
       #puts graph.count
       repo.insert(*graph)
       @current_model = repo  # set the current RDF model for this container

@@ -130,7 +130,8 @@ module LDP
       end
       
       existinggraphobject = RDF::Graph.new
-      existinggraphobject.from_ttl(response.body)
+      patchedttl = LDP::HTTPUtils::patchttl(response.body)
+      existinggraphobject.from_ttl(patchedttl)
       existinggraphobject.each {|stmt| graph << stmt  }  # append
       
       writer = RDF::Writer.for(:turtle)
