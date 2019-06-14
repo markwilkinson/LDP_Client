@@ -28,7 +28,7 @@ the current RDF of that object, injecting new triples, then PUTting the object b
 ## Example of Usage
 
     
-    require 'ldp'
+    require 'ldp_simple'
     
     
     # create the vocabularies I will use
