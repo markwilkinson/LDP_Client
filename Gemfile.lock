@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ldp_simple (0.0.3)
+    ldp_simple (0.0.5)
 
 GEM
   remote: https://rubygems.org/
@@ -32,7 +32,7 @@ GEM
       connection_pool (~> 2.2)
     netrc (0.11.0)
     openssl (2.1.2)
-    rake (10.5.0)
+    rake (12.3.3)
     rdf (3.0.5)
       hamster (~> 3.0)
       link_header (~> 0.0, >= 0.0.8)
@@ -88,7 +88,7 @@ DEPENDENCIES
   json-ld (~> 3.0, >= 3.0.2)
   ldp_simple!
   openssl (~> 2.1, >= 2.1.2)
-  rake (~> 10.0)
+  rake (~> 12.3)
   rdf (~> 3.0, >= 3.0.5)
   rdf-raptor (~> 2.2, >= 2.2.0)
   rdf-turtle (~> 3.0, >= 3.0.3)
