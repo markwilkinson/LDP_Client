@@ -337,7 +337,7 @@ module LDP
         self.init_folder
         return self
       else
-        stderr.puts "Update of #{self.uri} failed for unknown reasons.  Continuing, but beware!"
+        $stderr.puts "Update of #{self.uri} failed for unknown reasons.  Continuing, but beware!"
         return false
       end
     

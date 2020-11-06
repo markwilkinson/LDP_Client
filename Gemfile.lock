@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ldp_simple (0.0.3)
+    ldp_simple (0.0.5)
 
 GEM
   remote: https://rubygems.org/

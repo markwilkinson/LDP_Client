@@ -86,7 +86,7 @@ module LDP
         if s.to_s =~ /^\w+:\/?\/?[^\s]+/
                 s = RDF::URI.new(s.to_s)
         else
-          $stderr.puts "Subject #{s.to_s} must be a URI-compatible thingy"
+          #$stderr.puts "Subject #{s.to_s} must be a URI-compatible thingy"
           abort "Subject #{s.to_s} must be a URI-compatible thingy"
         end
       end
@@ -96,19 +96,26 @@ module LDP
         if p.to_s =~ /^\w+:\/?\/?[^\s]+/
                 p = RDF::URI.new(p.to_s)
         else
-          $stderr.puts "Predicate #{p.to_s} must be a URI-compatible thingy"
+          #$stderr.puts "Predicate #{p.to_s} must be a URI-compatible thingy"
           abort "Predicate #{p.to_s} must be a URI-compatible thingy"
         end
       end
   
       unless o.respond_to?('uri')
-        if o.to_s =~ /^\w+:\/?\/?[^\s]+/
+        if o.to_s =~ /^FORCE_S:(.*+*)/
+            #$stderr.puts "matched #{$1}"
+                o = RDF::Literal.new($1, :language => :en)
+            #$stderr.puts "created #{o.class}"
+                
+        elsif o.to_s =~ /^\w+:\/?\/?[^\s]+/
                 o = RDF::URI.new(o.to_s)
+        elsif o.to_s =~ /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d/
+                o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.dateTime)
         elsif o.to_s =~ /^\d{4}-[01]\d-[0-3]\d/
                 o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.date)
-        elsif o.to_s =~ /^[+-]?\d+\.\d+/
+        elsif o.to_s =~ /^\d\.\d/
                 o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.float)
-        elsif o.to_s =~ /^[+-]?[0-9]+$/
+        elsif o.to_s =~ /^[0-9]+$/
                 o = RDF::Literal.new(o.to_s, :datatype => RDF::XSD.int)
         else
                 o = RDF::Literal.new(o.to_s, :language => :en)
