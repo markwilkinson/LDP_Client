@@ -136,8 +136,10 @@ module LDP
       
       writer = RDF::Writer.for(:turtle)
       body = writer.dump(graph)
-      
-      response = LDP::HTTPUtils::put(@uri, {accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
+      etag = Digest::SHA2.hexdigest body
+      response = LDP::HTTPUtils::put(@uri, {ETag: "#{etag}", accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
+
+      #response = LDP::HTTPUtils::put(@uri, {accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
       @debug and $stderr.puts "Response #{response.code} : #{response.body}"
       if response
         return self
@@ -157,8 +159,10 @@ module LDP
         return r if r.uri.to_s.match(/\/#{@slug}\/?$/) # check if it already exists, return it if it does
       end
 
-      headers = {accept: 'text/turtle', content_type: 'text/turtle', "Slug" => slug, "Link" => '<http://www.w3.org/ns/ldp#Resource>; rel="type"'}
-        
+      #headers = {accept: 'text/turtle', content_type: 'text/turtle', "Slug" => slug, "Link" => '<http://www.w3.org/ns/ldp#Resource>; rel="type"'}
+      etag = Digest::SHA2.hexdigest "datetime"
+      headers = {ETag: "#{etag}", accept: 'text/turtle', content_type: 'text/turtle', "Slug" => slug, "Link" => '<http://www.w3.org/ns/ldp#Resource>; rel="type"'}
+
       payload = """<> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/ldp#Resource> ."""
       @debug and $stderr.puts   parent_container.uri, headers, payload, self.client.username, self.client.password
       response = LDP::HTTPUtils::post(parent_container.uri, headers, payload, self.client.username, self.client.password)
