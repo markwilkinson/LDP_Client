@@ -147,6 +147,11 @@ module LDP
       @debug and $stderr.puts "getting container"
       @debug and $stderr.puts self.uri, {accept: "text/turtle"}, self.client.username, self.client.password
       response = LDP::HTTPUtils.get(self.uri, {accept: "text/turtle"}, self.client.username, self.client.password)
+      etag = Digest::SHA2.hexdigest `date`      
+      headers = {ETag: "#{etag}", accept: 'text/turtle', content_type: 'text/turtle'}
+
+      response = LDP::HTTPUtils.get(self.uri, headers, self.client.username, self.client.password)
+
       if response
           return response
       else
@@ -174,11 +179,14 @@ module LDP
         return c if c.uri.to_s.match(/\/#{@slug}\/?$/) # check if it already exists
       end
       
-      headers = {accept: 'text/turtle', content_type: 'text/turtle', "Slug" => @slug, "Link" => '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'}
+ #     headers = {accept: 'text/turtle', content_type: 'text/turtle', "Slug" => @slug, "Link" => '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'}
         
       payload = """@prefix ldp: <http://www.w3.org/ns/ldp#> . 
                       <> a ldp:Container, ldp:BasicContainer ."""
-        
+      etag = Digest::SHA2.hexdigest payload      
+      headers = {ETag: "#{etag}", accept: 'text/turtle', content_type: 'text/turtle', "Slug" => @slug, "Link" => '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'}
+         
+       
       response = LDP::HTTPUtils::post(self.uri, headers, payload, self.client.username, self.client.password)
       if response
         newuri = response.headers[:location]  
@@ -330,8 +338,9 @@ module LDP
       
       writer = RDF::Writer.for(:turtle)
       body = writer.dump(graph)
-      
-      response = LDP::HTTPUtils::put(self.uri, {accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
+      etag = Digest::SHA2.hexdigest body
+      response = LDP::HTTPUtils::put(@uri, {ETag: "#{etag}", accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
+      #response = LDP::HTTPUtils::put(self.uri, {accept: 'text/turtle', content_type: 'text/turtle'}, body, self.client.username, self.client.password)
       @debug and $stderr.puts "Response #{response.code}: #{response.body}"
       if response
         self.init_folder
