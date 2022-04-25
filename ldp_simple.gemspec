@@ -44,6 +44,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'json-ld', '~> 3.0', '>= 3.0.2'
   spec.add_development_dependency 'rdf-turtle', '~> 3.0', '>= 3.0.3'
   spec.add_development_dependency 'rest-client', '~> 2.0', '>= 2.0.2'
+  spec.add_development_dependency 'digest', '~> 3.0.0', '>= 3.0.0'
 
 
 end
