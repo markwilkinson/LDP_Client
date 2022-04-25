@@ -7,12 +7,13 @@ module HTTPUtils
 		
 		
 		begin
-			response = RestClient::Request.execute({
-					method: :get,
-					url: url.to_s,
-					user: user,
-					password: pass,
-					headers: headers})
+                       request = RestClient::Request.new({
+                                        method: :get,
+                                        url: url.to_s,
+                                        user: user,
+                                        password: pass,
+                                        headers: headers})
+			response = request.execute()
 			return response
 		rescue RestClient::ExceptionWithResponse => e
 			$stderr.puts e.response
