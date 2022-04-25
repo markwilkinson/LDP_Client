@@ -15,6 +15,7 @@ require 'rdf/raptor'
 require 'securerandom'
 require 'json/ld'
 require 'rest-client'
+require 'digest'
 
 module LDP
 	#autoload :LDPClient, 'ldp_simple/ldpclient'
